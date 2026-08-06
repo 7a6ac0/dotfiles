@@ -14,7 +14,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly TPM_REPO="https://github.com/tmux-plugins/tpm"
 readonly TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 
-readonly PACKAGES=(atuin eza nvim starship tmux wezterm zsh)
+readonly PACKAGES=(atuin eza nvim starship tmux wezterm yazi zsh)
 
 # Required by the configs in this repo.
 readonly BREW_FORMULAE=(
@@ -43,6 +43,12 @@ readonly BREW_FORMULAE_OPTIONAL=(
   resvg
   sevenzip
   jq
+)
+
+# Subset of the above that brew keeps keg-only and will not link on its own.
+readonly BREW_FORMULAE_KEG_ONLY=(
+  ffmpeg-full
+  imagemagick-full
 )
 
 # Nerd Fonts — the prompt, tmux status line and eza icons need them.
@@ -75,6 +81,11 @@ install_packages() {
 
   log "Installing optional yazi preview backends"
   brew install "${BREW_FORMULAE_OPTIONAL[@]}"
+
+  # Both are :versioned_formula, so brew installs them keg-only and leaves them
+  # unlinked — yazi's video and image previews need them on PATH.
+  log "Linking keg-only preview backends"
+  brew link "${BREW_FORMULAE_KEG_ONLY[@]}" --force --overwrite
 
   log "Installing Nerd Fonts"
   brew install --cask "${BREW_CASKS[@]}"
@@ -128,6 +139,16 @@ install_tpm() {
   git clone --depth=1 "$TPM_REPO" "$TPM_DIR"
 }
 
+# yazi's flavor is a `ya pkg` clone pinned in package.toml, not tracked source.
+install_yazi_deps() {
+  if ! command -v ya >/dev/null 2>&1; then
+    warn "ya not found — skipping yazi flavors (install yazi, then run 'ya pkg install')"
+    return
+  fi
+  log "Installing yazi flavors from package.toml"
+  ya pkg install
+}
+
 main() {
   check_platform
   install_packages
@@ -135,6 +156,7 @@ main() {
   stow_packages
   link_zshenv
   install_tpm
+  install_yazi_deps
 
   cat <<'EOF'
 

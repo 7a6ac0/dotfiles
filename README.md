@@ -13,6 +13,7 @@ Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 | `wezterm/` | `~/.config/wezterm/` | terminal config, key tables, status line |
 | `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
 | `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
+| `yazi/` | `~/.config/yazi/` | file manager theme, `ya pkg`-managed flavors |
 
 ---
 
@@ -47,7 +48,7 @@ brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neov
 | `ripgrep` | `grep` alias |
 | `zoxide` | smart `cd` (`.zshrc`) |
 | `sesh` | session picker — `Esc-s` in zsh, `prefix K` in tmux |
-| `yazi` | the `y` function and `prefix C-y` popup |
+| `yazi` | the `y` function and `prefix C-y` popup; `ya pkg` installs its flavors |
 | `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu |
 | `atuin` | `Ctrl-R` history search (`.zshrc`) |
 
@@ -57,7 +58,10 @@ Needed only for previewing media, PDFs, SVGs and archives inside yazi:
 
 ```sh
 brew install ffmpeg-full imagemagick-full poppler resvg sevenzip jq
+brew link ffmpeg-full imagemagick-full --force --overwrite
 ```
+
+The second line is not optional. `ffmpeg-full` and `imagemagick-full` are `:versioned_formula`, so Homebrew installs them **keg-only** and never links them into `/opt/homebrew/bin`. Without the force-link, `ffmpeg`, `ffprobe` and `magick` are absent from `$PATH` and yazi's video and image previews fail silently. `--overwrite` replaces any conflicting symlinks left by a plain `ffmpeg` or `imagemagick` install.
 
 ### Nerd Fonts
 
@@ -112,7 +116,7 @@ Everything `install.sh` does, by hand:
 cd ~/dotfiles
 
 # 1. Symlink the packages into $HOME.
-stow --restow --target="$HOME" atuin eza nvim starship tmux wezterm zsh
+stow --restow --target="$HOME" atuin eza nvim starship tmux wezterm yazi zsh
 
 # 2. Bootstrap ~/.zshenv. Stow will NOT do this — see below.
 ln -sfn "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
@@ -122,6 +126,9 @@ mkdir -p ~/.cache/zsh ~/.local/state/zsh ~/.local/bin
 
 # 4. Install the tmux plugin manager.
 git clone --depth=1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+
+# 5. Fetch the yazi flavors pinned in yazi/.config/yazi/package.toml.
+ya pkg install
 ```
 
 **Why step 2 exists.** zsh only ever auto-reads `~/.zshenv`, and that file is precisely what sets `ZDOTDIR` to `~/.config/zsh`. Without the symlink, nothing under `~/.config/zsh` is ever loaded. Stow cannot create it, because the link crosses out of the package tree.
@@ -137,6 +144,7 @@ After a successful install, `~/.config` holds folded directory symlinks pointing
 ~/.config/starship -> ../dotfiles/starship/.config/starship
 ~/.config/tmux     -> ../dotfiles/tmux/.config/tmux
 ~/.config/wezterm  -> ../dotfiles/wezterm/.config/wezterm
+~/.config/yazi     -> ../dotfiles/yazi/.config/yazi
 ~/.config/zsh      -> ../dotfiles/zsh/.config/zsh
 ~/.zshenv          -> /Users/<you>/.config/zsh/.zshenv
 ```
@@ -249,11 +257,12 @@ A `chpwd` hook auto-activates `./venv` or `./.venv` when you enter a Python proj
 ```sh
 brew upgrade                                    # tools
 zplugin-update                                  # zsh plugins
+ya pkg upgrade                                  # yazi flavors (updates package.toml)
 # inside tmux: prefix + U                        # tmux plugins
 cd ~/dotfiles && stow -R -t "$HOME" zsh tmux    # re-apply after adding new files to a package
 ```
 
-Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`) are gitignored — they are manager-owned clones, not source. A fresh clone of this repo will not contain them; the zsh ones reappear on the next shell start and TPM is re-cloned by `install.sh`.
+Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`, `yazi/.config/yazi/flavors/`) are gitignored — they are manager-owned clones, not source. A fresh clone of this repo will not contain them; the zsh ones reappear on the next shell start and TPM and the yazi flavors are re-fetched by `install.sh`.
 
 ---
 
@@ -261,7 +270,7 @@ Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`) ar
 
 ```sh
 cd ~/dotfiles
-stow -D -t "$HOME" eza nvim starship tmux wezterm zsh
+stow -D -t "$HOME" atuin eza nvim starship tmux wezterm yazi zsh
 rm ~/.zshenv
 ```
 

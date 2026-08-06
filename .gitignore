@@ -6,6 +6,8 @@ zsh/.config/zsh/.zsh_sessions/
 # plugin manager clones — self-bootstrapping, not source
 zsh/.config/zsh/plugins/
 tmux/.config/tmux/plugins/
+yazi/.config/yazi/flavors/
+yazi/.config/yazi/plugins/
 
 # macOS
 .DS_Store
