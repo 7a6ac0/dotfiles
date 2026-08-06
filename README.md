@@ -8,6 +8,7 @@ Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 | --- | --- | --- |
 | `zsh/` | `~/.config/zsh/` | shell config split into `.zshenv`, `.zprofile`, `.zshrc`, `aliases.zsh`, `fzf.zsh`, `plugins.zsh`, `prompt.zsh` |
 | `tmux/` | `~/.config/tmux/` | `tmux.conf`, `bin/tmux-sessionizer.sh`, TPM-managed plugins |
+| `nvim/` | `~/.config/nvim/` | LazyVim-based editor config, `lazy-lock.json`, lazy.nvim-managed plugins |
 | `starship/` | `~/.config/starship/` | prompt theme, custom git-remote and worktree modules |
 | `wezterm/` | `~/.config/wezterm/` | terminal config, key tables, status line |
 | `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
@@ -16,9 +17,7 @@ Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 
 ## Requirements
 
-- **macOS on Apple Silicon.** `zsh/.config/zsh/.zprofile` hardcodes
-  `eval "$(/opt/homebrew/bin/brew shellenv)"`. On Intel macOS change that path to
-  `/usr/local/bin/brew`.
+- **macOS on Apple Silicon.** `zsh/.config/zsh/.zprofile` hardcodes `eval "$(/opt/homebrew/bin/brew shellenv)"`. On Intel macOS change that path to `/usr/local/bin/brew`.
 - **[Homebrew](https://brew.sh)** — everything else is installed through it.
 - **GNU Stow** — the only hard prerequisite for the install itself.
 
@@ -95,8 +94,7 @@ cd ~/dotfiles
 ./install.sh
 ```
 
-`install.sh` is idempotent — re-running it on a configured machine is a no-op. Set
-`DOTFILES_SKIP_BREW=1` to re-stow without touching Homebrew.
+`install.sh` is idempotent — re-running it on a configured machine is a no-op. Set `DOTFILES_SKIP_BREW=1` to re-stow without touching Homebrew.
 
 Then:
 
@@ -112,7 +110,7 @@ Everything `install.sh` does, by hand:
 cd ~/dotfiles
 
 # 1. Symlink the packages into $HOME.
-stow --restow --target="$HOME" eza starship tmux wezterm zsh
+stow --restow --target="$HOME" eza nvim starship tmux wezterm zsh
 
 # 2. Bootstrap ~/.zshenv. Stow will NOT do this — see below.
 ln -sfn "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
@@ -132,6 +130,7 @@ After a successful install, `~/.config` holds folded directory symlinks pointing
 
 ```
 ~/.config/eza      -> ../dotfiles/eza/.config/eza
+~/.config/nvim     -> ../dotfiles/nvim/.config/nvim
 ~/.config/starship -> ../dotfiles/starship/.config/starship
 ~/.config/tmux     -> ../dotfiles/tmux/.config/tmux
 ~/.config/wezterm  -> ../dotfiles/wezterm/.config/wezterm
@@ -193,7 +192,7 @@ zsh runs in **vi mode** (`set -o vi`).
 | --- | --- |
 | `Ctrl-E` | accept the autosuggestion |
 | `Ctrl-P` / `Ctrl-N` | previous / next history entry |
-| `Esc` then `s` | sesh session picker |
+| `Alt-s` | sesh session picker |
 | `Ctrl-T` | fzf file picker with `bat` preview |
 | `Alt-C` | fzf directory picker with `eza` tree preview |
 | `Ctrl-R` | fzf history search |
@@ -259,7 +258,7 @@ Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`) ar
 
 ```sh
 cd ~/dotfiles
-stow -D -t "$HOME" eza starship tmux wezterm zsh
+stow -D -t "$HOME" eza nvim starship tmux wezterm zsh
 rm ~/.zshenv
 ```
 

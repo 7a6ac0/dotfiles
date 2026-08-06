@@ -14,7 +14,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly TPM_REPO="https://github.com/tmux-plugins/tpm"
 readonly TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 
-readonly PACKAGES=(eza starship tmux wezterm zsh)
+readonly PACKAGES=(eza nvim starship tmux wezterm zsh)
 
 # Required by the configs in this repo.
 readonly BREW_FORMULAE=(
