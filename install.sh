@@ -18,21 +18,22 @@ readonly PACKAGES=(atuin eza nvim starship tmux wezterm yazi zsh)
 
 # Required by the configs in this repo.
 readonly BREW_FORMULAE=(
-  stow      # installs this repo into $HOME
-  zsh       # the shell itself
-  tmux      # terminal multiplexer
-  starship  # prompt
-  eza       # ls/ll/la/tree aliases
-  bat       # cat alias, MANPAGER, fzf preview
-  fd        # FZF_DEFAULT_COMMAND, sessionizer
-  fzf       # fuzzy finder, sessionizer
-  ripgrep   # grep alias
-  zoxide    # smart cd
-  sesh      # session picker (prefix K, Esc-s)
-  yazi      # y(), prefix C-y
-  neovim    # $EDITOR / $VISUAL
-  git
-  atuin     # shell history manager
+  stow     # installs this repo into $HOME
+  zsh      # the shell itself
+  tmux     # terminal multiplexer
+  starship # prompt
+  eza      # ls/ll/la/tree aliases
+  bat      # cat alias, MANPAGER, fzf preview
+  fd       # FZF_DEFAULT_COMMAND, sessionizer
+  fzf      # fuzzy finder, sessionizer
+  ripgrep  # grep alias
+  zoxide   # smart cd
+  sesh     # session picker (prefix K, Esc-s)
+  yazi     # y(), prefix C-y
+  neovim   # $EDITOR / $VISUAL
+  git      # version control
+  lazygit  # git UI
+  atuin    # shell history manager
 )
 
 # Optional: yazi's preview backends for media, PDFs, SVGs and archives.
@@ -61,13 +62,16 @@ readonly BREW_CASKS=(
 
 log() { printf '==> %s\n' "$*"; }
 warn() { printf 'warning: %s\n' "$*" >&2; }
-die() { printf 'error: %s\n' "$*" >&2; exit 1; }
+die() {
+  printf 'error: %s\n' "$*" >&2
+  exit 1
+}
 
 check_platform() {
-  [[ "$(uname -s)" == "Darwin" ]] \
-    || die "these dotfiles target macOS (.zprofile hardcodes /opt/homebrew)"
-  command -v brew >/dev/null 2>&1 \
-    || die "Homebrew not found — install it first: https://brew.sh"
+  [[ "$(uname -s)" == "Darwin" ]] ||
+    die "these dotfiles target macOS (.zprofile hardcodes /opt/homebrew)"
+  command -v brew >/dev/null 2>&1 ||
+    die "Homebrew not found — install it first: https://brew.sh"
 }
 
 install_packages() {
