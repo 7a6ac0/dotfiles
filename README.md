@@ -1,0 +1,311 @@
+# dotfiles
+
+A macOS terminal environment built around **zsh + tmux + WezTerm + Starship**, themed with
+Catppuccin Mocha. Configuration is XDG-compliant (nothing is dumped in `$HOME` except the one
+`~/.zshenv` symlink zsh insists on) and installed with [GNU Stow](https://www.gnu.org/software/stow/).
+
+Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
+
+| Package | Stow target | Contents |
+| --- | --- | --- |
+| `zsh/` | `~/.config/zsh/` | shell config split into `.zshenv`, `.zprofile`, `.zshrc`, `aliases.zsh`, `fzf.zsh`, `plugins.zsh`, `prompt.zsh` |
+| `tmux/` | `~/.config/tmux/` | `tmux.conf`, `bin/tmux-sessionizer.sh`, TPM-managed plugins |
+| `starship/` | `~/.config/starship/` | prompt theme, custom git-remote and worktree modules |
+| `wezterm/` | `~/.config/wezterm/` | terminal config, key tables, status line |
+| `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
+
+---
+
+## Requirements
+
+- **macOS on Apple Silicon.** `zsh/.config/zsh/.zprofile` hardcodes
+  `eval "$(/opt/homebrew/bin/brew shellenv)"`. On Intel macOS change that path to
+  `/usr/local/bin/brew`.
+- **[Homebrew](https://brew.sh)** — everything else is installed through it.
+- **GNU Stow** — the only hard prerequisite for the install itself.
+
+WezTerm is not required; the zsh and tmux configs work in any terminal that supports true colour.
+
+---
+
+## Package installation
+
+`install.sh` installs all of the following. The lists are reproduced here so you can install
+selectively or audit what each dependency is for.
+
+### Required
+
+```sh
+brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neovim git
+```
+
+| Package | Why it is needed |
+| --- | --- |
+| `stow` | installs this repo into `$HOME` |
+| `starship` | the prompt (`prompt.zsh`) |
+| `eza` | `ls` / `ll` / `la` / `tree` aliases |
+| `bat` | `cat` alias, `$MANPAGER`, fzf `Ctrl-T` preview |
+| `fd` | `$FZF_DEFAULT_COMMAND`, the tmux sessionizer |
+| `fzf` | `Ctrl-T` / `Ctrl-R` / `Alt-C`, sesh pickers |
+| `ripgrep` | `grep` alias |
+| `zoxide` | smart `cd` (`.zshrc`) |
+| `sesh` | session picker — `Esc-s` in zsh, `prefix K` in tmux |
+| `yazi` | the `y` function and `prefix C-y` popup |
+| `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu |
+
+### Optional — yazi preview backends
+
+Needed only for previewing media, PDFs, SVGs and archives inside yazi:
+
+```sh
+brew install ffmpeg-full imagemagick-full poppler resvg sevenzip jq
+```
+
+### Nerd Fonts
+
+The prompt, tmux status line and eza icons all use Nerd Font glyphs:
+
+```sh
+brew install --cask font-maple-mono-nf-cn font-proggy-clean-tt-nerd-font \
+  font-fantasque-sans-mono-nerd-font font-symbols-only-nerd-font
+```
+
+`wezterm.lua` requests them in that order as a fallback chain: `Maple Mono NF CN` →
+`ProggyClean Nerd Font` → `FantasqueSansM Nerd Font`.
+
+### Installed outside Homebrew
+
+These are all sourced defensively, so their absence is not fatal:
+
+| Tool | Where the config expects it |
+| --- | --- |
+| WezTerm | the terminal itself |
+| `nvm` | `$XDG_CONFIG_HOME/nvm` (`.zprofile`) |
+| `bun` | `$HOME/.bun` (`.zprofile`) |
+| OrbStack | `~/.orbstack/shell/init.zsh` (`.zprofile`) |
+| `claude` CLI | the `gac` commit-message helper (`aliases.zsh`) |
+
+### A note on the zsh plugin formulae
+
+`zsh-autosuggestions`, `zsh-syntax-highlighting` and `zsh-autocomplete` are **not** used even if
+Homebrew has them installed — `plugins.zsh` clones its own copies into `$ZDOTDIR/plugins`. The
+Homebrew versions are safe to `brew uninstall`.
+
+---
+
+## Installation
+
+```sh
+git clone <this-repo> ~/dotfiles
+cd ~/dotfiles
+./install.sh
+```
+
+`install.sh` is idempotent — re-running it on a configured machine is a no-op. Set
+`DOTFILES_SKIP_BREW=1` to re-stow without touching Homebrew.
+
+Then:
+
+1. `exec zsh` — the zsh plugins clone themselves on first run.
+2. Inside tmux, press `prefix + I` (`C-s` then `Shift-i`) to install the tmux plugins.
+3. Set your terminal font to one of the Nerd Fonts installed above.
+
+### Manual equivalent
+
+Everything `install.sh` does, by hand:
+
+```sh
+cd ~/dotfiles
+
+# 1. Symlink the packages into $HOME.
+stow --restow --target="$HOME" eza starship tmux wezterm zsh
+
+# 2. Bootstrap ~/.zshenv. Stow will NOT do this — see below.
+ln -sfn "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
+
+# 3. Create the cache/state directories the configs write into.
+mkdir -p ~/.cache/zsh ~/.local/state/zsh ~/.local/bin
+
+# 4. Install the tmux plugin manager.
+git clone --depth=1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+```
+
+**Why step 2 exists.** zsh only ever auto-reads `~/.zshenv`, and that file is precisely what sets
+`ZDOTDIR` to `~/.config/zsh`. Without the symlink, nothing under `~/.config/zsh` is ever loaded.
+Stow cannot create it, because the link crosses out of the package tree.
+
+**Why step 3 matters.** `.zshrc` runs `compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"` and sets
+`HISTFILE="$XDG_STATE_HOME/zsh/history"`. Neither creates its parent directory, so completion
+caching and history silently fail if they are missing.
+
+After a successful install, `~/.config` holds folded directory symlinks pointing back into the repo:
+
+```
+~/.config/eza      -> ../dotfiles/eza/.config/eza
+~/.config/starship -> ../dotfiles/starship/.config/starship
+~/.config/tmux     -> ../dotfiles/tmux/.config/tmux
+~/.config/wezterm  -> ../dotfiles/wezterm/.config/wezterm
+~/.config/zsh      -> ../dotfiles/zsh/.config/zsh
+~/.zshenv          -> /Users/<you>/.config/zsh/.zshenv
+```
+
+---
+
+## Paths and environment
+
+### Load order
+
+```
+~/.zshenv  (symlink)
+  └─ $ZDOTDIR/.zshenv     XDG bases, ZDOTDIR, editor, pager, PATH
+       ├─ .zprofile        brew shellenv, OrbStack, bun, nvm      (login shells)
+       └─ .zshrc           history, options, zoxide, completion   (interactive shells)
+            ├─ fzf.zsh
+            ├─ aliases.zsh
+            ├─ plugins.zsh
+            └─ prompt.zsh
+```
+
+### Environment variables
+
+| Variable | Value | Set in |
+| --- | --- | --- |
+| `XDG_CONFIG_HOME` | `~/.config` | `.zshenv` |
+| `XDG_CACHE_HOME` | `~/.cache` | `.zshenv` |
+| `XDG_DATA_HOME` | `~/.local/share` | `.zshenv` |
+| `XDG_STATE_HOME` | `~/.local/state` | `.zshenv` |
+| `ZDOTDIR` | `$XDG_CONFIG_HOME/zsh` | `.zshenv` |
+| `EDITOR`, `VISUAL` | `nvim` | `.zshenv` |
+| `MANPAGER` | `bat -l man -p` (falls back to `batcat`) | `.zshenv` |
+| `NVM_DIR` | `$XDG_CONFIG_HOME/nvm` | `.zshenv` |
+| `STARSHIP_CONFIG` | `$XDG_CONFIG_HOME/starship/starship.toml` | `.zshenv` |
+| `EZA_CONFIG_DIR` | `~/.config/eza` | `.zshenv` |
+| `PATH` | prepends `~/.local/bin` | `.zshenv` |
+| `BUN_INSTALL` | `~/.bun` (also prepends `$BUN_INSTALL/bin`) | `.zprofile` |
+| `HISTFILE` | `$XDG_STATE_HOME/zsh/history` (100k entries, shared) | `.zshrc` |
+| `FZF_DEFAULT_COMMAND` | `fd --hidden --strip-cwd-prefix --exclude .git` | `fzf.zsh` |
+| `FZF_CTRL_T_*`, `FZF_ALT_C_*` | `bat` / `eza` previews | `fzf.zsh` |
+| `FZF_TMUX_OPTS` | `-p90%,70%` | `fzf.zsh` |
+| `TMUX_PLUGIN_MANAGER_PATH` | `~/.config/tmux/plugins` | `tmux.conf` |
+
+Completion functions are loaded from `~/.config/zsh/completions` (currently `_sesh`), and the
+completion cache lives at `$XDG_CACHE_HOME/zsh/zcompdump`.
+
+---
+
+## Keybinds and commands
+
+zsh runs in **vi mode** (`set -o vi`).
+
+### zsh
+
+| Key | Action |
+| --- | --- |
+| `Ctrl-E` | accept the autosuggestion |
+| `Ctrl-P` / `Ctrl-N` | previous / next history entry |
+| `Esc` then `s` | sesh session picker |
+| `Ctrl-T` | fzf file picker with `bat` preview |
+| `Alt-C` | fzf directory picker with `eza` tree preview |
+| `Ctrl-R` | fzf history search |
+
+### tmux — prefix is `Ctrl-s`
+
+| Key | Action |
+| --- | --- |
+| `\` / `-` | split horizontally / vertically, keeping cwd |
+| `h` `j` `k` `l` | resize pane by 5 |
+| `z` | zoom pane |
+| `v` | enter copy mode (vi keys, `v` select, `y` copy) |
+| `r` | reload `tmux.conf` |
+| `K` | sesh picker in an fzf-tmux popup |
+| `f` | project sessionizer (`fd` over `~/Documents/github`, 2 levels deep) |
+| `n` | new session, prompting for a name |
+| `o` | tmux-sessionx |
+| `Ctrl-y` | yazi in a floating popup |
+| `Ctrl-t` | floating zsh shell |
+| `d` | config-edit menu (`.zshrc` / `.zprofile` / `tmux.conf`) |
+
+Sessions are persisted by tmux-resurrect and auto-saved every 15 minutes by tmux-continuum.
+
+### WezTerm — leader is `Ctrl-a`
+
+| Key | Action |
+| --- | --- |
+| `Leader r` | enter the `resize_pane` key table (stays active) |
+| `Leader .` | enter the `move_tab` key table (stays active) |
+
+The active key table is shown in the status line alongside the workspace, cwd and foreground
+command. Colour scheme is `nordfox`; font size 12.5 at 120 fps, 0.9 opacity with macOS blur.
+
+### Custom shell commands
+
+| Command | What it does |
+| --- | --- |
+| `gac` | pipes `git diff --cached` through the `claude` CLI to draft a conventional-commit message, shows it, and commits after confirmation |
+| `y` | opens yazi and `cd`s to wherever you left it |
+| `zr` | re-source `.zshrc` |
+| `zplugin-update` | `git pull --ff-only` every zsh plugin |
+| `ta` | `tmux a` |
+| `ls` `ll` `la` `tree` | `eza` with icons and git status |
+| `cat` `grep` `vim` | `bat`, `rg --color=auto`, `nvim` |
+
+A `chpwd` hook auto-activates `./venv` or `./.venv` when you enter a Python project and deactivates
+it when you leave.
+
+---
+
+## Updating
+
+```sh
+brew upgrade                                    # tools
+zplugin-update                                  # zsh plugins
+# inside tmux: prefix + U                        # tmux plugins
+cd ~/dotfiles && stow -R -t "$HOME" zsh tmux    # re-apply after adding new files to a package
+```
+
+Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`) are gitignored — they
+are manager-owned clones, not source. A fresh clone of this repo will not contain them; the zsh ones
+reappear on the next shell start and TPM is re-cloned by `install.sh`.
+
+---
+
+## Uninstall
+
+```sh
+cd ~/dotfiles
+stow -D -t "$HOME" eza starship tmux wezterm zsh
+rm ~/.zshenv
+```
+
+Cache, state and plugin directories under `~/.cache`, `~/.local/state` and `~/.config/*/plugins` are
+left behind; remove them by hand if you want a clean slate.
+
+---
+
+## Troubleshooting
+
+**`stow` reports a conflict.** An existing real file or directory occupies the target path. Back it
+up and re-run — `install.sh` deliberately does not use `--adopt`, which would overwrite the repo's
+contents with whatever is in `$HOME`.
+
+**Prompt shows boxes instead of icons.** The terminal font is not a Nerd Font. Install the casks
+above and select one.
+
+**`prefix f` does nothing.** `bin/tmux-sessionizer.sh` is not marked executable; it works because
+tmux invokes it as `tmux neww <path>` and the shebang is honoured. If you want to call it directly,
+`chmod +x` it. It also expects projects under `~/Documents/github` — edit the `fd` path in the
+script to match your layout. The script accepts a directory as its single argument, and sources a
+`.tmux-sessionizer` file from the project (or `$HOME`) into the new session if one exists.
+
+**Completion or history not persisting.** `~/.cache/zsh` or `~/.local/state/zsh` is missing; see
+step 3 of the manual install.
+
+---
+
+## Not managed here
+
+Present on the machine but deliberately outside this repo:
+
+- `~/.gitconfig` — a plain file, unmanaged.
+- `~/.config/nvim` — a [LazyVim](https://www.lazyvim.org/) starter with its own git repo and
+  `lazy-lock.json`.

@@ -1,0 +1,11 @@
+# zsh runtime artifacts (regenerated on every shell start)
+zsh/.config/zsh/.zcompdump*
+zsh/.config/zsh/.zcompcache/
+zsh/.config/zsh/.zsh_sessions/
+
+# plugin manager clones — self-bootstrapping, not source
+zsh/.config/zsh/plugins/
+tmux/.config/tmux/plugins/
+
+# macOS
+.DS_Store
