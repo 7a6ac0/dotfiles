@@ -14,24 +14,25 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly TPM_REPO="https://github.com/tmux-plugins/tpm"
 readonly TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 
-readonly PACKAGES=(eza nvim starship tmux wezterm zsh)
+readonly PACKAGES=(atuin eza nvim starship tmux wezterm zsh)
 
 # Required by the configs in this repo.
 readonly BREW_FORMULAE=(
   stow      # installs this repo into $HOME
   zsh       # the shell itself
-  tmux
+  tmux      # terminal multiplexer
   starship  # prompt
   eza       # ls/ll/la/tree aliases
   bat       # cat alias, MANPAGER, fzf preview
   fd        # FZF_DEFAULT_COMMAND, sessionizer
-  fzf
+  fzf       # fuzzy finder, sessionizer
   ripgrep   # grep alias
   zoxide    # smart cd
   sesh      # session picker (prefix K, Esc-s)
   yazi      # y(), prefix C-y
   neovim    # $EDITOR / $VISUAL
   git
+  atuin     # shell history manager
 )
 
 # Optional: yazi's preview backends for media, PDFs, SVGs and archives.

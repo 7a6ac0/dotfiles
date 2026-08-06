@@ -28,8 +28,8 @@ _zplugin_load zsh-users zsh-history-substring-search
 _zplugin_load zdharma-continuum fast-syntax-highlighting
 
 bindkey -M viins '^E' autosuggest-accept
-bindkey -M viins '^P' up-line-or-history
-bindkey -M viins '^N' down-line-or-history
+#bindkey -M viins '^P' up-line-or-history
+#bindkey -M viins '^N' down-line-or-history
 
 # ============= Sesh Tmux conf ==============
 function sesh-sessions() {

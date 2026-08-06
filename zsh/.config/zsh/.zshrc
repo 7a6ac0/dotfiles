@@ -9,17 +9,10 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
 
-# =========================================================
 # Shell behaviour
-# =========================================================
-
 setopt AUTOCD
 setopt NOBEEP
 setopt NUMERIC_GLOB_SORT  # sort file10 after file9, not after file1
-
-# =========================================================
-# Smart directory navigation
-# =========================================================
 
 # Initialize zoxide
 eval "$(zoxide init zsh)"
@@ -59,3 +52,13 @@ source "$ZDOTDIR/plugins.zsh"
 
 # Prompt/theme
 source "$ZDOTDIR/prompt.zsh"
+
+# =========================================================
+# Extra Config
+# =========================================================
+
+# Atuin
+eval "$(atuin init zsh --disable-up-arrow)"
+bindkey -M emacs '^r' atuin-search
+bindkey -M viins '^r' atuin-search-viins
+bindkey -M vicmd '^r' atuin-search-vicmd

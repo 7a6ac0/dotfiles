@@ -12,6 +12,7 @@ Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 | `starship/` | `~/.config/starship/` | prompt theme, custom git-remote and worktree modules |
 | `wezterm/` | `~/.config/wezterm/` | terminal config, key tables, status line |
 | `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
+| `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
 
 ---
 
@@ -32,7 +33,7 @@ WezTerm is not required; the zsh and tmux configs work in any terminal that supp
 ### Required
 
 ```sh
-brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neovim git
+brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neovim git atuin
 ```
 
 | Package | Why it is needed |
@@ -42,12 +43,13 @@ brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neov
 | `eza` | `ls` / `ll` / `la` / `tree` aliases |
 | `bat` | `cat` alias, `$MANPAGER`, fzf `Ctrl-T` preview |
 | `fd` | `$FZF_DEFAULT_COMMAND`, the tmux sessionizer |
-| `fzf` | `Ctrl-T` / `Ctrl-R` / `Alt-C`, sesh pickers |
+| `fzf` | `Ctrl-T` / `Alt-C`, sesh pickers |
 | `ripgrep` | `grep` alias |
 | `zoxide` | smart `cd` (`.zshrc`) |
 | `sesh` | session picker — `Esc-s` in zsh, `prefix K` in tmux |
 | `yazi` | the `y` function and `prefix C-y` popup |
 | `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu |
+| `atuin` | `Ctrl-R` history search (`.zshrc`) |
 
 ### Optional — yazi preview backends
 
@@ -110,7 +112,7 @@ Everything `install.sh` does, by hand:
 cd ~/dotfiles
 
 # 1. Symlink the packages into $HOME.
-stow --restow --target="$HOME" eza nvim starship tmux wezterm zsh
+stow --restow --target="$HOME" atuin eza nvim starship tmux wezterm zsh
 
 # 2. Bootstrap ~/.zshenv. Stow will NOT do this — see below.
 ln -sfn "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
@@ -129,6 +131,7 @@ git clone --depth=1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/t
 After a successful install, `~/.config` holds folded directory symlinks pointing back into the repo:
 
 ```
+~/.config/atuin    -> ../dotfiles/atuin/.config/atuin
 ~/.config/eza      -> ../dotfiles/eza/.config/eza
 ~/.config/nvim     -> ../dotfiles/nvim/.config/nvim
 ~/.config/starship -> ../dotfiles/starship/.config/starship
@@ -195,7 +198,7 @@ zsh runs in **vi mode** (`set -o vi`).
 | `Alt-s` | sesh session picker |
 | `Ctrl-T` | fzf file picker with `bat` preview |
 | `Alt-C` | fzf directory picker with `eza` tree preview |
-| `Ctrl-R` | fzf history search |
+| `Ctrl-R` | atuin history search — rebound after fzf's own `Ctrl-R` |
 
 ### tmux — prefix is `Ctrl-s`
 

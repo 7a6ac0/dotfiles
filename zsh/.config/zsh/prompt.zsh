@@ -24,9 +24,7 @@ function control_venv_activation() {
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd control_venv_activation
 
-# avoid starship FUNCSET WARNING
+# Avoid starship FUNCSET WARNING
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget zle-keymap-select starship_zle-keymap-select
-
 eval "$(starship init zsh)"
-
