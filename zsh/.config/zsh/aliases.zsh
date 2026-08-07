@@ -24,7 +24,6 @@ alias grep='rg --color=auto'
 alias diff='diff --color=auto'
 alias df='df -h'
 alias zr="source $XDG_CONFIG_HOME/zsh/.zshrc"
-alias lg='lazygit'
 
 # =========================================================
 # Editor
@@ -59,10 +58,9 @@ gac() {
   git commit -m "$msg"
 }
 
-# =========================================================
-# tmux
-# =========================================================
+alias lg='lazygit'
 
+# tmux
 alias ta="tmux a"
 
 # yazi
