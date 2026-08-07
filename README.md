@@ -213,7 +213,6 @@ zsh runs in **vi mode** (`set -o vi`).
 | Key | Action |
 | --- | --- |
 | `Ctrl-E` | accept the autosuggestion |
-| `Ctrl-P` / `Ctrl-N` | previous / next history entry |
 | `Alt-s` | sesh session picker |
 | `Ctrl-T` | fzf file picker with `bat` preview |
 | `Alt-C` | fzf directory picker with `eza` tree preview |
