@@ -2,7 +2,18 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "catppuccin",
+      colorscheme = "catppuccin-mocha",
+    },
+  },
+  {
+    -- LazyVim ships the catppuccin spec but leaves flavour at the plugin's
+    -- default of "auto", which resolves from vim.o.background — and Neovim
+    -- sets that from whatever background colour the terminal reports. Pin it
+    -- so the editor matches the rest of these dotfiles on every terminal.
+    "catppuccin/nvim",
+    name = "catppuccin",
+    opts = {
+      flavour = "mocha",
     },
   },
   {
