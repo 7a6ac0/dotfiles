@@ -14,6 +14,11 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly TPM_REPO="https://github.com/tmux-plugins/tpm"
 readonly TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 
+readonly BACKUP_ROOT="$HOME/.dotfiles-backup"
+
+# Set on the first backup of a run; all of that run's rescues share the directory.
+backup_dir=""
+
 readonly PACKAGES=(atuin eza nvim starship tmux wezterm yazi zsh)
 
 # Required by the configs in this repo.
@@ -101,6 +106,45 @@ create_xdg_dirs() {
   mkdir -p "$HOME/.cache/zsh" "$HOME/.local/state/zsh" "$HOME/.local/bin"
 }
 
+# Every package in this repo installs to ~/.config/<package>.
+config_target() { printf '%s/.config/%s' "$HOME" "$1"; }
+
+# Where that target must point once the package is stowed.
+package_source() { printf '%s/%s/.config/%s' "$DOTFILES_DIR" "$1" "$1"; }
+
+# stow refuses to write over a real file or directory, so anything already
+# sitting on a package's target is moved aside first. A machine with a
+# hand-rolled ~/.config keeps its old config instead of blocking the install.
+#
+# Links this repo already owns are left alone — otherwise every re-run would
+# manufacture a backup of itself and `stow --restow` would have nothing to do.
+backup_conflicts() {
+  local pkg target
+
+  for pkg in "${PACKAGES[@]}"; do
+    target="$(config_target "$pkg")"
+
+    # -e is false for a broken symlink, so -L has to be tested separately.
+    [[ -e "$target" || -L "$target" ]] || continue
+
+    # -ef compares inodes through symlinks: true only when this exact package
+    # is what the target already resolves to.
+    [[ "$target" -ef "$(package_source "$pkg")" ]] && continue
+
+    if [[ -z "$backup_dir" ]]; then
+      backup_dir="$BACKUP_ROOT/$(date +%Y%m%d-%H%M%S)"
+      mkdir -p "$backup_dir" || die "cannot create backup directory $backup_dir"
+    fi
+
+    log "Backing up $target -> $backup_dir/$pkg"
+    mv "$target" "$backup_dir/$pkg" || die "could not move $target aside"
+  done
+
+  if [[ -n "$backup_dir" ]]; then
+    warn "existing config was moved to $backup_dir"
+  fi
+}
+
 stow_packages() {
   command -v stow >/dev/null 2>&1 || die "stow not found — run without DOTFILES_SKIP_BREW"
 
@@ -108,7 +152,7 @@ stow_packages() {
   for pkg in "${PACKAGES[@]}"; do
     log "Stowing $pkg -> \$HOME"
     if ! stow --restow --target="$HOME" --dir="$DOTFILES_DIR" "$pkg"; then
-      die "stow failed for '$pkg' — back up the conflicting file listed above, then re-run"
+      die "stow failed for '$pkg' — move the conflicting path listed above aside, then re-run"
     fi
   done
 }
@@ -157,6 +201,7 @@ main() {
   check_platform
   install_packages
   create_xdg_dirs
+  backup_conflicts
   stow_packages
   link_zshenv
   install_tpm

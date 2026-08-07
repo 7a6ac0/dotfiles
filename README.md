@@ -102,6 +102,8 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-running it on a configured machine is a no-op. Set `DOTFILES_SKIP_BREW=1` to re-stow without touching Homebrew.
 
+**Your existing config is not destroyed.** Before stowing, `install.sh` checks every `~/.config/<package>` path it is about to claim. Anything real already sitting there — a hand-written `~/.config/nvim`, a symlink pointing somewhere else, even a broken one — is moved to `~/.dotfiles-backup/<timestamp>/<package>/` and the path is reported on stdout. Links this repo already owns are recognised and left alone, so a re-run never manufactures a backup of itself.
+
 Then:
 
 1. `exec zsh` — the zsh plugins clone themselves on first run.
@@ -114,6 +116,15 @@ Everything `install.sh` does, by hand:
 
 ```sh
 cd ~/dotfiles
+
+# 0. Move any pre-existing config out of the way — stow will not overwrite it.
+mkdir -p ~/.dotfiles-backup/manual
+for pkg in atuin eza nvim starship tmux wezterm yazi zsh; do
+  # -e is false for a broken symlink, hence the second test.
+  if [ -e ~/.config/"$pkg" ] || [ -L ~/.config/"$pkg" ]; then
+    mv ~/.config/"$pkg" ~/.dotfiles-backup/manual/"$pkg"
+  fi
+done
 
 # 1. Symlink the packages into $HOME.
 stow --restow --target="$HOME" atuin eza nvim starship tmux wezterm yazi zsh
@@ -280,7 +291,11 @@ Cache, state and plugin directories under `~/.cache`, `~/.local/state` and `~/.c
 
 ## Troubleshooting
 
-**`stow` reports a conflict.** An existing real file or directory occupies the target path. Back it up and re-run — `install.sh` deliberately does not use `--adopt`, which would overwrite the repo's contents with whatever is in `$HOME`.
+**`stow` reports a conflict.** `install.sh` clears `~/.config/<package>` collisions on its own, so a surviving conflict is a path outside that pattern. Move it aside and re-run. `install.sh` deliberately does not use `--adopt`, which would overwrite the repo's contents with whatever is in `$HOME`.
+
+**Getting your old config back.** Look in `~/.dotfiles-backup/`, newest timestamp last. Nothing is ever deleted from there, so it grows one directory per install that found something to rescue — prune it by hand when you no longer need it.
+
+**`~/.zshenv` was left alone.** The backup pass only covers `~/.config`. If `~/.zshenv` is a real file rather than a symlink, `install.sh` warns and skips it instead of moving it, because that file often holds machine-specific settings. Back it up yourself, delete it, and re-run.
 
 **Prompt shows boxes instead of icons.** The terminal font is not a Nerd Font. Install the casks above and select one.
 
