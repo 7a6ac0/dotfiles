@@ -1,0 +1,22 @@
+# Global excludes. git reads this automatically as $XDG_CONFIG_HOME/git/ignore
+# whenever core.excludesFile is unset — no config entry needed.
+#
+# Only machine- and editor-generated noise belongs here. Anything a
+# collaborator would also want ignored belongs in the project's own .gitignore.
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# editors
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# direnv
+.direnv/
+.envrc.local

@@ -1,0 +1,77 @@
+[init]
+	defaultBranch = main
+
+[column]
+	ui = auto
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = version:refname
+
+[diff]
+	algorithm = histogram
+	mnemonicPrefix = true
+	renames = true
+	# `default` (not `plain`) is what emits the bold purple/blue/cyan/yellow
+	# styles that delta's map-styles below recolours. With `plain` the moved
+	# blocks come through uncoloured and the theme has nothing to map.
+	colorMoved = default
+
+[push]
+	default = simple
+	autoSetupRemote = true
+	followTags = true
+
+[merge]
+	# zdiff3 keeps the common ancestor in the conflict block — also what
+	# delta's `navigate` expects when jumping between conflict hunks.
+	conflictstyle = zdiff3
+
+# --- delta ------------------------------------------------------------------
+# git-delta replaces the diff pager everywhere: log, diff, show, blame, add -p.
+
+[core]
+	pager = delta
+
+[interactive]
+	# --color-only leaves delta's own decorations out of `add -p`, so the
+	# hunk-selection prompt stays intact.
+	diffFilter = delta --color-only
+
+[delta]
+	features = catppuccin-mocha
+	# n / N jump between files and hunks inside the pager.
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+	# OSC 8 links — file paths open in $EDITOR from a supporting terminal.
+	hyperlinks = true
+
+# Upstream theme, vendored from catppuccin/delta (mocha).
+[delta "catppuccin-mocha"]
+	blame-palette = "#1e1e2e #181825 #11111b #313244 #45475a"
+	commit-decoration-style = "#6c7086" bold box ul
+	dark = true
+	file-decoration-style = "#6c7086"
+	file-style = "#cdd6f4"
+	hunk-header-decoration-style = "#6c7086" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#a6adc8"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#6c7086"
+	line-numbers-minus-style = bold "#f38ba8"
+	line-numbers-plus-style = bold "#a6e3a1"
+	line-numbers-right-style = "#6c7086"
+	line-numbers-zero-style = "#6c7086"
+	minus-emph-style = bold syntax "#694559"
+	minus-style = syntax "#493447"
+	plus-emph-style = bold syntax "#4e6356"
+	plus-style = syntax "#394545"
+	map-styles = \
+		bold purple => syntax "#5b4e74", \
+		bold blue => syntax "#445375", \
+		bold cyan => syntax "#446170", \
+		bold yellow => syntax "#6b635b"
+	syntax-theme = Catppuccin Mocha

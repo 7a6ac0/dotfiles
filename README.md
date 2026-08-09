@@ -12,6 +12,7 @@ Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 | `starship/` | `~/.config/starship/` | prompt theme, custom git-remote and worktree modules |
 | `wezterm/` | `~/.config/wezterm/` | terminal config, key tables, status line |
 | `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
+| `git/` | `~/.config/git/` | `config` (diff/merge defaults, delta pager — no identity, see below), global `ignore` |
 | `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
 | `yazi/` | `~/.config/yazi/` | file manager theme, `ya pkg`-managed flavors |
 
@@ -34,7 +35,7 @@ WezTerm is not required; the zsh and tmux configs work in any terminal that supp
 ### Required
 
 ```sh
-brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neovim git atuin
+brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neovim git git-delta lazygit atuin
 ```
 
 | Package | Why it is needed |
@@ -51,6 +52,8 @@ brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neov
 | `yazi` | the `y` function and `prefix C-y` popup; `ya pkg` installs its flavors |
 | `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu |
 | `atuin` | `Ctrl-R` history search (`.zshrc`) |
+| `git-delta` | `core.pager` / `interactive.diffFilter` (`git/.config/git/config`) |
+| `lazygit` | the `lg` alias (`aliases.zsh`) |
 
 ### Optional — yazi preview backends
 
@@ -104,6 +107,8 @@ cd ~/dotfiles
 
 **Your existing config is not destroyed.** Before stowing, `install.sh` checks every `~/.config/<package>` path it is about to claim. Anything real already sitting there — a hand-written `~/.config/nvim`, a symlink pointing somewhere else, even a broken one — is moved to `~/.dotfiles-backup/<timestamp>/<package>/` and the path is reported on stdout. Links this repo already owns are recognised and left alone, so a re-run never manufactures a backup of itself.
 
+`~/.gitconfig` is left alone on purpose. Git reads it *after* `~/.config/git/config`, which makes the two a layer pair: this repo's `git/` package carries the settings that are the same everywhere, and `~/.gitconfig` stays untracked for whatever belongs to that one machine — `user.name` / `user.email` above all, plus any work-only `includeIf`, signing key or credential helper. Nothing machine-specific goes in the repo, and nothing in the repo needs editing per machine.
+
 Then:
 
 1. `exec zsh` — the zsh plugins clone themselves on first run.
@@ -119,7 +124,7 @@ cd ~/dotfiles
 
 # 0. Move any pre-existing config out of the way — stow will not overwrite it.
 mkdir -p ~/.dotfiles-backup/manual
-for pkg in atuin eza nvim starship tmux wezterm yazi zsh; do
+for pkg in atuin eza git nvim starship tmux wezterm yazi zsh; do
   # -e is false for a broken symlink, hence the second test.
   if [ -e ~/.config/"$pkg" ] || [ -L ~/.config/"$pkg" ]; then
     mv ~/.config/"$pkg" ~/.dotfiles-backup/manual/"$pkg"
@@ -127,7 +132,7 @@ for pkg in atuin eza nvim starship tmux wezterm yazi zsh; do
 done
 
 # 1. Symlink the packages into $HOME.
-stow --restow --target="$HOME" atuin eza nvim starship tmux wezterm yazi zsh
+stow --restow --target="$HOME" atuin eza git nvim starship tmux wezterm yazi zsh
 
 # 2. Bootstrap ~/.zshenv. Stow will NOT do this — see below.
 ln -sfn "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
@@ -151,6 +156,7 @@ After a successful install, `~/.config` holds folded directory symlinks pointing
 ```
 ~/.config/atuin    -> ../dotfiles/atuin/.config/atuin
 ~/.config/eza      -> ../dotfiles/eza/.config/eza
+~/.config/git      -> ../dotfiles/git/.config/git
 ~/.config/nvim     -> ../dotfiles/nvim/.config/nvim
 ~/.config/starship -> ../dotfiles/starship/.config/starship
 ~/.config/tmux     -> ../dotfiles/tmux/.config/tmux

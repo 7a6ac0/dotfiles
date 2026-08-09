@@ -19,26 +19,27 @@ readonly BACKUP_ROOT="$HOME/.dotfiles-backup"
 # Set on the first backup of a run; all of that run's rescues share the directory.
 backup_dir=""
 
-readonly PACKAGES=(atuin eza nvim starship tmux wezterm yazi zsh)
+readonly PACKAGES=(atuin eza git nvim starship tmux wezterm yazi zsh)
 
 # Required by the configs in this repo.
 readonly BREW_FORMULAE=(
-  stow     # installs this repo into $HOME
-  zsh      # the shell itself
-  tmux     # terminal multiplexer
-  starship # prompt
-  eza      # ls/ll/la/tree aliases
-  bat      # cat alias, MANPAGER, fzf preview
-  fd       # FZF_DEFAULT_COMMAND, sessionizer
-  fzf      # fuzzy finder, sessionizer
-  ripgrep  # grep alias
-  zoxide   # smart cd
-  sesh     # session picker (prefix K, Esc-s)
-  yazi     # y(), prefix C-y
-  neovim   # $EDITOR / $VISUAL
-  git      # version control
-  lazygit  # git UI
-  atuin    # shell history manager
+  stow      # installs this repo into $HOME
+  zsh       # the shell itself
+  tmux      # terminal multiplexer
+  starship  # prompt
+  eza       # ls/ll/la/tree aliases
+  bat       # cat alias, MANPAGER, fzf preview, delta syntax themes
+  fd        # FZF_DEFAULT_COMMAND, sessionizer
+  fzf       # fuzzy finder, sessionizer
+  ripgrep   # grep alias
+  zoxide    # smart cd
+  sesh      # session picker (prefix K, Esc-s)
+  yazi      # y(), prefix C-y
+  neovim    # $EDITOR / $VISUAL
+  git       # version control
+  git-delta # diff pager (core.pager)
+  lazygit   # git UI
+  atuin     # shell history manager
 )
 
 # Optional: yazi's preview backends for media, PDFs, SVGs and archives.
