@@ -33,6 +33,9 @@ export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship/starship.toml"
 # ---------- eza ----------
 export EZA_CONFIG_DIR="$HOME/.config/eza"
 
+# ---------- Golang ----------
+export GOPATH="$HOME/go"
+
 # ---------- PATH ----------
 # Personal binaries/scripts
 export PATH="$HOME/.local/bin:$PATH"
