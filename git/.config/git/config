@@ -1,5 +1,5 @@
 [user]
-  useConfigOnly = true
+	useConfigOnly = true
 
 [init]
 	defaultBranch = main
@@ -23,8 +23,8 @@
 	colorMoved = default
 
 [fetch]
-  prune = true
-  all = true
+	prune = true
+	all = true
 
 [push]
 	default = simple
@@ -32,14 +32,14 @@
 	followTags = true
 
 [pull]
-  rebase = true
+	rebase = true
 
 [rebase]
-  autoStash = true
-  updateRefs = true
+	autoStash = true
+	updateRefs = true
 
 [rerere]
-  enabled = true
+	enabled = true
 
 [merge]
 	# zdiff3 keeps the common ancestor in the conflict block — also what
@@ -47,7 +47,7 @@
 	conflictstyle = zdiff3
 
 [commit]
-  verbose = true
+	verbose = true
 
 # --- delta ------------------------------------------------------------------
 # git-delta replaces the diff pager everywhere: log, diff, show, blame, add -p.
