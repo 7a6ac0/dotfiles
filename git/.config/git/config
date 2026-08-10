@@ -1,3 +1,6 @@
+[user]
+  useConfigOnly = true
+
 [init]
 	defaultBranch = main
 
@@ -19,15 +22,32 @@
 	# blocks come through uncoloured and the theme has nothing to map.
 	colorMoved = default
 
+[fetch]
+  prune = true
+  all = true
+
 [push]
 	default = simple
 	autoSetupRemote = true
 	followTags = true
 
+[pull]
+  rebase = true
+
+[rebase]
+  autoStash = true
+  updateRefs = true
+
+[rerere]
+  enabled = true
+
 [merge]
 	# zdiff3 keeps the common ancestor in the conflict block — also what
 	# delta's `navigate` expects when jumping between conflict hunks.
 	conflictstyle = zdiff3
+
+[commit]
+  verbose = true
 
 # --- delta ------------------------------------------------------------------
 # git-delta replaces the diff pager everywhere: log, diff, show, blame, add -p.
