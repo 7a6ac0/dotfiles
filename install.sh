@@ -19,7 +19,7 @@ readonly BACKUP_ROOT="$HOME/.dotfiles-backup"
 # Set on the first backup of a run; all of that run's rescues share the directory.
 backup_dir=""
 
-readonly PACKAGES=(atuin eza git nvim starship tmux wezterm yazi zsh)
+readonly PACKAGES=(atuin eza git lazygit nvim starship tmux wezterm yazi zsh)
 
 # Required by the configs in this repo.
 readonly BREW_FORMULAE=(
@@ -80,25 +80,72 @@ check_platform() {
     die "Homebrew not found — install it first: https://brew.sh"
 }
 
+# Names out of "$@" that brew has not installed yet, one per line. "$1" is the
+# list to check against: formula or cask.
+#
+# Handing brew something it already has only earns a "already installed and
+# up-to-date" warning plus reinstall advice, which on a re-run buries the lines
+# that matter. Filtering first keeps the output to actual work.
+missing_packages() {
+  local kind="$1" installed pkg
+  shift
+
+  # Newline-delimited on both ends so the match below cannot hit a substring.
+  installed=$'\n'"$(brew list "--$kind" -1)"$'\n'
+
+  for pkg in "$@"; do
+    [[ "$installed" == *$'\n'"$pkg"$'\n'* ]] || printf '%s\n' "$pkg"
+  done
+}
+
+install_missing() {
+  local kind="$1" label="$2"
+  shift 2
+
+  local missing=() pkg
+  while IFS= read -r pkg; do
+    missing+=("$pkg")
+  done < <(missing_packages "$kind" "$@")
+
+  if [[ ${#missing[@]} -eq 0 ]]; then
+    log "$label already installed"
+    return
+  fi
+
+  log "Installing $label: ${missing[*]}"
+  if [[ "$kind" == cask ]]; then
+    brew install --cask "${missing[@]}"
+  else
+    brew install "${missing[@]}"
+  fi
+}
+
+# Both keg-only formulae are :versioned_formula, so brew installs them unlinked
+# — yazi's video and image previews need them on PATH.
+link_keg_only() {
+  local prefix pkg
+  prefix="$(brew --prefix)"
+
+  for pkg in "${BREW_FORMULAE_KEG_ONLY[@]}"; do
+    # brew records a link as a symlink here; calling `brew link` on a keg that
+    # already has one just prints "Already linked".
+    [[ -L "$prefix/var/homebrew/linked/$pkg" ]] && continue
+
+    log "Linking keg-only $pkg"
+    brew link "$pkg" --force --overwrite
+  done
+}
+
 install_packages() {
   if [[ -n "${DOTFILES_SKIP_BREW:-}" ]]; then
     log "DOTFILES_SKIP_BREW set — skipping Homebrew"
     return
   fi
 
-  log "Installing required formulae"
-  brew install "${BREW_FORMULAE[@]}"
-
-  log "Installing optional yazi preview backends"
-  brew install "${BREW_FORMULAE_OPTIONAL[@]}"
-
-  # Both are :versioned_formula, so brew installs them keg-only and leaves them
-  # unlinked — yazi's video and image previews need them on PATH.
-  log "Linking keg-only preview backends"
-  brew link "${BREW_FORMULAE_KEG_ONLY[@]}" --force --overwrite
-
-  log "Installing Nerd Fonts"
-  brew install --cask "${BREW_CASKS[@]}"
+  install_missing formula "required formulae" "${BREW_FORMULAE[@]}"
+  install_missing formula "optional yazi preview backends" "${BREW_FORMULAE_OPTIONAL[@]}"
+  link_keg_only
+  install_missing cask "Nerd Fonts" "${BREW_CASKS[@]}"
 }
 
 # .zshrc points compinit and HISTFILE at these; neither creates its parent.

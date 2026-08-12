@@ -13,6 +13,7 @@ Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 | `wezterm/` | `~/.config/wezterm/` | terminal config, key tables, status line |
 | `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
 | `git/` | `~/.config/git/` | `config` (diff/merge defaults, delta pager — no identity, see below), global `ignore` |
+| `lazygit/` | `~/.config/lazygit/` | git UI theme (Catppuccin Mocha), delta diff renderer |
 | `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
 | `yazi/` | `~/.config/yazi/` | file manager theme, `ya pkg`-managed flavors |
 
@@ -124,7 +125,7 @@ cd ~/dotfiles
 
 # 0. Move any pre-existing config out of the way — stow will not overwrite it.
 mkdir -p ~/.dotfiles-backup/manual
-for pkg in atuin eza git nvim starship tmux wezterm yazi zsh; do
+for pkg in atuin eza git lazygit nvim starship tmux wezterm yazi zsh; do
   # -e is false for a broken symlink, hence the second test.
   if [ -e ~/.config/"$pkg" ] || [ -L ~/.config/"$pkg" ]; then
     mv ~/.config/"$pkg" ~/.dotfiles-backup/manual/"$pkg"
@@ -132,7 +133,7 @@ for pkg in atuin eza git nvim starship tmux wezterm yazi zsh; do
 done
 
 # 1. Symlink the packages into $HOME.
-stow --restow --target="$HOME" atuin eza git nvim starship tmux wezterm yazi zsh
+stow --restow --target="$HOME" atuin eza git lazygit nvim starship tmux wezterm yazi zsh
 
 # 2. Bootstrap ~/.zshenv. Stow will NOT do this — see below.
 ln -sfn "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
@@ -157,6 +158,7 @@ After a successful install, `~/.config` holds folded directory symlinks pointing
 ~/.config/atuin    -> ../dotfiles/atuin/.config/atuin
 ~/.config/eza      -> ../dotfiles/eza/.config/eza
 ~/.config/git      -> ../dotfiles/git/.config/git
+~/.config/lazygit  -> ../dotfiles/lazygit/.config/lazygit
 ~/.config/nvim     -> ../dotfiles/nvim/.config/nvim
 ~/.config/starship -> ../dotfiles/starship/.config/starship
 ~/.config/tmux     -> ../dotfiles/tmux/.config/tmux
@@ -286,7 +288,7 @@ Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`, `y
 
 ```sh
 cd ~/dotfiles
-stow -D -t "$HOME" atuin eza nvim starship tmux wezterm yazi zsh
+stow -D -t "$HOME" atuin eza git lazygit nvim starship tmux wezterm yazi zsh
 rm ~/.zshenv
 ```
 
