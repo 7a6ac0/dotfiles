@@ -53,6 +53,9 @@ source "$ZDOTDIR/plugins.zsh"
 # Prompt/theme
 source "$ZDOTDIR/prompt.zsh"
 
+# API keys and tokens — gitignored, absent on a freshly cloned machine.
+[[ -r "$ZDOTDIR/secrets.zsh" ]] && source "$ZDOTDIR/secrets.zsh"
+
 # =========================================================
 # Extra Config
 # =========================================================

@@ -182,7 +182,8 @@ After a successful install, `~/.config` holds folded directory symlinks pointing
             ├─ fzf.zsh
             ├─ aliases.zsh
             ├─ plugins.zsh
-            └─ prompt.zsh
+            ├─ prompt.zsh
+            └─ secrets.zsh      API keys — gitignored, sourced only if present
 ```
 
 ### Environment variables
@@ -209,6 +210,32 @@ After a successful install, `~/.config` holds folded directory symlinks pointing
 
 Completion functions are loaded from `~/.config/zsh/completions` (currently `_sesh`), and the
 completion cache lives at `$XDG_CACHE_HOME/zsh/zcompdump`.
+
+### Secrets
+
+API keys and tokens go in `~/.config/zsh/secrets.zsh`, sourced last by `.zshrc`. That file is
+gitignored, so it never reaches the remote; `secrets.zsh.example` is the tracked template and must
+stay free of real values.
+
+Setting one up on a new machine:
+
+```bash
+cp "$ZDOTDIR/secrets.zsh.example" "$ZDOTDIR/secrets.zsh"
+chmod 600 "$ZDOTDIR/secrets.zsh"
+$EDITOR "$ZDOTDIR/secrets.zsh"          # fill in the real values
+```
+
+`.zshrc` sources it only when the file is readable, so a fresh clone with no `secrets.zsh` still
+starts a working shell.
+
+Two things worth knowing:
+
+- **`~/.config/zsh` is a symlink into this repo.** Anything created under it is a file inside the
+  working tree, which is exactly why `.gitignore` — not the file's location — is what keeps the key
+  out of a commit. The ignore rules cover `**/secrets.zsh`, `**/*.secret.zsh`, `*.env`, `.env*`,
+  `**/*.key`, and `**/*.pem`.
+- **`git add -f` bypasses `.gitignore`.** Before committing, `git status --short` should never list
+  `secrets.zsh`. If it ever does, the ignore rule stopped matching — fix that before you commit.
 
 ---
 

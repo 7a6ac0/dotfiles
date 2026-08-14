@@ -9,5 +9,14 @@ tmux/.config/tmux/plugins/
 yazi/.config/yazi/flavors/
 yazi/.config/yazi/plugins/
 
+# secrets — API keys and tokens, never version-controlled.
+# The globs end in .zsh, so secrets.zsh.example stays tracked as the template.
+**/secrets.zsh
+**/*.secret.zsh
+*.env
+.env*
+**/*.key
+**/*.pem
+
 # macOS
 .DS_Store
