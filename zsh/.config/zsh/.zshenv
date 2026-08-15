@@ -1,5 +1,8 @@
 # ~/.config/zsh/.zshenv
 
+# Hide brew hints
+export HOMEBREW_NO_ENV_HINTS=1
+
 # ---------- XDG base directories ----------
 # Centralizes config/cache/data locations
 export XDG_CONFIG_HOME="$HOME/.config"
