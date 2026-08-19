@@ -2,7 +2,7 @@
 
 A macOS terminal environment built around **zsh + tmux + WezTerm + Starship**, themed with Catppuccin Mocha. Configuration is XDG-compliant (nothing is dumped in `$HOME` except the one `~/.zshenv` symlink zsh insists on) and installed with [GNU Stow](https://www.gnu.org/software/stow/).
 
-Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
+Each configuration directory listed below is a Stow *package* whose contents mirror `$HOME`:
 
 <!-- catalog:packages:start -->
 | Package | Stow target | Contents |
@@ -18,6 +18,8 @@ Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 | `yazi/` | `~/.config/yazi/` | file manager theme, `ya pkg`-managed flavors |
 | `zsh/` | `~/.config/zsh/` | shell config split into `.zshenv`, `.zprofile`, `.zshrc`, aliases, fzf, plugins, and prompt |
 <!-- catalog:packages:end -->
+
+`.automation/` contains repository-maintenance tools and is never passed to Stow.
 
 ---
 
@@ -327,8 +329,8 @@ zplugin-update                                  # zsh plugins
 ya pkg upgrade                                  # yazi flavors (updates package.toml)
 # inside tmux: prefix + U                        # tmux plugins
 cd ~/dotfiles && stow -R -t "$HOME" zsh tmux    # re-apply after adding new files to a package
-scripts/render-readme.sh                         # regenerate catalog-derived README sections
-scripts/render-readme.sh --check                 # verify README has no catalog drift
+.automation/render-readme.sh                     # regenerate catalog-derived README sections
+.automation/render-readme.sh --check             # verify README has no catalog drift
 ```
 
 Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`, `yazi/.config/yazi/flavors/`) are gitignored — they are manager-owned clones, not source. A fresh clone of this repo will not contain them; the zsh ones reappear on the next shell start and TPM and the yazi flavors are re-fetched by `install.sh`.

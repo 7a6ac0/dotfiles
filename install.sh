@@ -11,8 +11,8 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck source=lib/reconciliation-catalog.sh
-source "$DOTFILES_DIR/lib/reconciliation-catalog.sh"
+# shellcheck source=.automation/reconciliation-catalog.sh
+source "$DOTFILES_DIR/.automation/reconciliation-catalog.sh"
 
 readonly BACKUP_ROOT="$HOME/.dotfiles-backup"
 

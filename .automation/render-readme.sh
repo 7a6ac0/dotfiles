@@ -5,8 +5,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 README="$ROOT_DIR/README.md"
 
-# shellcheck source=../lib/reconciliation-catalog.sh
-source "$ROOT_DIR/lib/reconciliation-catalog.sh"
+# shellcheck source=reconciliation-catalog.sh
+source "$ROOT_DIR/.automation/reconciliation-catalog.sh"
 
 usage() {
   printf 'usage: %s [--check]\n' "${0##*/}" >&2

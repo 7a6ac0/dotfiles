@@ -33,7 +33,7 @@ new_environment() {
   mkdir -p "$CURRENT_HOME" "$CURRENT_BIN" "$CURRENT_PREFIX"
   : > "$CURRENT_LOG"
   : > "$CURRENT_STATE"
-  cp "$ROOT_DIR/tests/fakes/"* "$CURRENT_BIN/"
+  cp "$ROOT_DIR/.automation/fakes/"* "$CURRENT_BIN/"
   chmod +x "$CURRENT_BIN/"*
 }
 
