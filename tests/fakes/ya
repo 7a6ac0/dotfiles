@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ "${1:-}" == "pkg" && "${2:-}" == "install" ]] || exit 2
+printf 'ya pkg install\n' >> "${FAKE_LOG:?FAKE_LOG is required}"

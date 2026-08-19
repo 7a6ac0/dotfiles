@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+target=""
+directory=""
+package=""
+
+for argument in "$@"; do
+  case "$argument" in
+    --target=*) target="${argument#--target=}" ;;
+    --dir=*) directory="${argument#--dir=}" ;;
+    --restow) ;;
+    *) package="$argument" ;;
+  esac
+done
+
+[[ -n "$target" && -n "$directory" && -n "$package" ]] || exit 2
+source="$directory/$package/.config/$package"
+destination="$target/.config/$package"
+
+mkdir -p "$target/.config"
+ln -sfn "$source" "$destination"
+printf 'stow %s\n' "$package" >> "${FAKE_LOG:?FAKE_LOG is required}"

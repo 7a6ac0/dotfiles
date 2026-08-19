@@ -11,60 +11,13 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-readonly TPM_REPO="https://github.com/tmux-plugins/tpm"
-readonly TPM_DIR="$HOME/.config/tmux/plugins/tpm"
+# shellcheck source=lib/reconciliation-catalog.sh
+source "$DOTFILES_DIR/lib/reconciliation-catalog.sh"
 
 readonly BACKUP_ROOT="$HOME/.dotfiles-backup"
 
 # Set on the first backup of a run; all of that run's rescues share the directory.
 backup_dir=""
-
-readonly PACKAGES=(atuin eza git lazygit nvim starship tmux wezterm yazi zsh)
-
-# Required by the configs in this repo.
-readonly BREW_FORMULAE=(
-  stow      # installs this repo into $HOME
-  zsh       # the shell itself
-  tmux      # terminal multiplexer
-  starship  # prompt
-  eza       # ls/ll/la/tree aliases
-  bat       # cat alias, MANPAGER, fzf preview, delta syntax themes
-  fd        # FZF_DEFAULT_COMMAND, sessionizer
-  fzf       # fuzzy finder, sessionizer
-  ripgrep   # grep alias
-  zoxide    # smart cd
-  sesh      # session picker (prefix K, Esc-s)
-  yazi      # y(), prefix C-y
-  neovim    # $EDITOR / $VISUAL
-  git       # version control
-  git-delta # diff pager (core.pager)
-  lazygit   # git UI
-  atuin     # shell history manager
-)
-
-# Optional: yazi's preview backends for media, PDFs, SVGs and archives.
-readonly BREW_FORMULAE_OPTIONAL=(
-  ffmpeg-full
-  imagemagick-full
-  poppler
-  resvg
-  sevenzip
-  jq
-)
-
-# Subset of the above that brew keeps keg-only and will not link on its own.
-readonly BREW_FORMULAE_KEG_ONLY=(
-  ffmpeg-full
-  imagemagick-full
-)
-
-# Nerd Fonts — the prompt, tmux status line and eza icons need them.
-readonly BREW_CASKS=(
-  font-maple-mono-nf-cn
-  font-proggy-clean-tt-nerd-font
-  font-fantasque-sans-mono-nerd-font
-  font-symbols-only-nerd-font
-)
 
 log() { printf '==> %s\n' "$*"; }
 warn() { printf 'warning: %s\n' "$*" >&2; }
@@ -126,7 +79,7 @@ link_keg_only() {
   local prefix pkg
   prefix="$(brew --prefix)"
 
-  for pkg in "${BREW_FORMULAE_KEG_ONLY[@]}"; do
+  for pkg in "${CATALOG_KEG_ONLY_FORMULAE[@]}"; do
     # brew records a link as a symlink here; calling `brew link` on a keg that
     # already has one just prints "Already linked".
     [[ -L "$prefix/var/homebrew/linked/$pkg" ]] && continue
@@ -142,10 +95,10 @@ install_packages() {
     return
   fi
 
-  install_missing formula "required formulae" "${BREW_FORMULAE[@]}"
-  install_missing formula "optional yazi preview backends" "${BREW_FORMULAE_OPTIONAL[@]}"
+  install_missing formula "required formulae" "${CATALOG_REQUIRED_FORMULAE[@]}"
+  install_missing formula "Yazi preview backends" "${CATALOG_YAZI_PREVIEW_FORMULAE[@]}"
   link_keg_only
-  install_missing cask "Nerd Fonts" "${BREW_CASKS[@]}"
+  install_missing cask "Nerd Fonts" "${CATALOG_FONT_CASKS[@]}"
 }
 
 # .zshrc points compinit and HISTFILE at these; neither creates its parent.
@@ -169,7 +122,7 @@ package_source() { printf '%s/%s/.config/%s' "$DOTFILES_DIR" "$1" "$1"; }
 backup_conflicts() {
   local pkg target
 
-  for pkg in "${PACKAGES[@]}"; do
+  for pkg in "${CATALOG_PACKAGES[@]}"; do
     target="$(config_target "$pkg")"
 
     # -e is false for a broken symlink, so -L has to be tested separately.
@@ -197,7 +150,7 @@ stow_packages() {
   command -v stow >/dev/null 2>&1 || die "stow not found — run without DOTFILES_SKIP_BREW"
 
   local pkg
-  for pkg in "${PACKAGES[@]}"; do
+  for pkg in "${CATALOG_PACKAGES[@]}"; do
     log "Stowing $pkg -> \$HOME"
     if ! stow --restow --target="$HOME" --dir="$DOTFILES_DIR" "$pkg"; then
       die "stow failed for '$pkg' — move the conflicting path listed above aside, then re-run"
@@ -227,12 +180,14 @@ link_zshenv() {
 }
 
 install_tpm() {
-  if [[ -d "$TPM_DIR" ]]; then
+  local tpm_dir="$HOME/.config/tmux/plugins/tpm"
+
+  if [[ -d "$tpm_dir" ]]; then
     log "TPM already present"
     return
   fi
-  log "Cloning TPM into $TPM_DIR"
-  git clone --depth=1 "$TPM_REPO" "$TPM_DIR"
+  log "Cloning TPM into $tpm_dir"
+  git clone --depth=1 "$CATALOG_TPM_REPO" "$tpm_dir"
 }
 
 # yazi's flavor is a `ya pkg` clone pinned in package.toml, not tracked source.
@@ -245,25 +200,40 @@ install_yazi_deps() {
   ya pkg install
 }
 
+run_package_automated_reconciliation() {
+  local pkg step
+
+  for pkg in "${CATALOG_AUTOMATED_RECONCILIATION_PACKAGES[@]}"; do
+    while IFS= read -r step; do
+      case "$step" in
+        install-tpm) install_tpm ;;
+        install-yazi-flavors) install_yazi_deps ;;
+        link-zshenv) link_zshenv ;;
+        *) die "unknown automated reconciliation step '$step' for '$pkg'" ;;
+      esac
+    done < <(catalog_package_automated_steps "$pkg")
+  done
+}
+
+print_user_followups() {
+  local followup number=1
+
+  printf '\nDone. Remaining manual steps:\n\n'
+  while IFS= read -r followup; do
+    printf '  %d. %s\n' "$number" "$followup"
+    number=$((number + 1))
+  done < <(catalog_user_followups)
+  printf '\n'
+}
+
 main() {
   check_platform
   install_packages
   create_xdg_dirs
   backup_conflicts
   stow_packages
-  link_zshenv
-  install_tpm
-  install_yazi_deps
-
-  cat <<'EOF'
-
-Done. Remaining manual steps:
-
-  1. Start a new shell (exec zsh). The zsh plugins clone themselves on first run.
-  2. Inside tmux, press prefix + I (C-s then Shift-i) to install the tmux plugins.
-  3. Set your terminal font to "Maple Mono NF CN" (or another installed Nerd Font).
-
-EOF
+  run_package_automated_reconciliation
+  print_user_followups
 }
 
 main "$@"

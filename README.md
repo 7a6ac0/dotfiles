@@ -4,18 +4,20 @@ A macOS terminal environment built around **zsh + tmux + WezTerm + Starship**, t
 
 Each top-level directory is a Stow *package* whose contents mirror `$HOME`:
 
+<!-- catalog:packages:start -->
 | Package | Stow target | Contents |
 | --- | --- | --- |
-| `zsh/` | `~/.config/zsh/` | shell config split into `.zshenv`, `.zprofile`, `.zshrc`, `aliases.zsh`, `fzf.zsh`, `plugins.zsh`, `prompt.zsh` |
-| `tmux/` | `~/.config/tmux/` | `tmux.conf`, `bin/tmux-sessionizer.sh`, TPM-managed plugins |
+| `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
+| `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
+| `git/` | `~/.config/git/` | `config` (diff/merge defaults, delta pager — no identity), global `ignore` |
+| `lazygit/` | `~/.config/lazygit/` | git UI theme (Catppuccin Mocha), delta diff renderer |
 | `nvim/` | `~/.config/nvim/` | LazyVim-based editor config, `lazy-lock.json`, lazy.nvim-managed plugins |
 | `starship/` | `~/.config/starship/` | prompt theme, custom git-remote and worktree modules |
+| `tmux/` | `~/.config/tmux/` | `tmux.conf`, `bin/tmux-sessionizer.sh`, TPM-managed plugins |
 | `wezterm/` | `~/.config/wezterm/` | terminal config, key tables, status line |
-| `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
-| `git/` | `~/.config/git/` | `config` (diff/merge defaults, delta pager — no identity, see below), global `ignore` |
-| `lazygit/` | `~/.config/lazygit/` | git UI theme (Catppuccin Mocha), delta diff renderer |
-| `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
 | `yazi/` | `~/.config/yazi/` | file manager theme, `ya pkg`-managed flavors |
+| `zsh/` | `~/.config/zsh/` | shell config split into `.zshenv`, `.zprofile`, `.zshrc`, aliases, fzf, plugins, and prompt |
+<!-- catalog:packages:end -->
 
 ---
 
@@ -35,6 +37,7 @@ WezTerm is not required; the zsh and tmux configs work in any terminal that supp
 
 ### Required
 
+<!-- catalog:required-formulae:start -->
 ```sh
 brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neovim git git-delta lazygit atuin
 ```
@@ -42,9 +45,11 @@ brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neov
 | Package | Why it is needed |
 | --- | --- |
 | `stow` | installs this repo into `$HOME` |
+| `zsh` | the shell itself |
+| `tmux` | terminal multiplexer |
 | `starship` | the prompt (`prompt.zsh`) |
 | `eza` | `ls` / `ll` / `la` / `tree` aliases |
-| `bat` | `cat` alias, `$MANPAGER`, fzf `Ctrl-T` preview |
+| `bat` | `cat` alias, `$MANPAGER`, fzf preview |
 | `fd` | `$FZF_DEFAULT_COMMAND`, the tmux sessionizer |
 | `fzf` | `Ctrl-T` / `Alt-C`, sesh pickers |
 | `ripgrep` | `grep` alias |
@@ -52,29 +57,34 @@ brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neov
 | `sesh` | session picker — `Esc-s` in zsh, `prefix K` in tmux |
 | `yazi` | the `y` function and `prefix C-y` popup; `ya pkg` installs its flavors |
 | `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu |
-| `atuin` | `Ctrl-R` history search (`.zshrc`) |
-| `git-delta` | `core.pager` / `interactive.diffFilter` (`git/.config/git/config`) |
+| `git` | version control |
+| `git-delta` | `core.pager` / `interactive.diffFilter` |
 | `lazygit` | the `lg` alias (`aliases.zsh`) |
+| `atuin` | `Ctrl-R` history search (`.zshrc`) |
+<!-- catalog:required-formulae:end -->
 
-### Optional — yazi preview backends
+### Yazi preview backends
 
-Needed only for previewing media, PDFs, SVGs and archives inside yazi:
+Full installation includes preview support for media, PDFs, SVGs and archives inside yazi:
 
+<!-- catalog:yazi-preview-formulae:start -->
 ```sh
 brew install ffmpeg-full imagemagick-full poppler resvg sevenzip jq
 brew link ffmpeg-full imagemagick-full --force --overwrite
 ```
+<!-- catalog:yazi-preview-formulae:end -->
 
-The second line is not optional. `ffmpeg-full` and `imagemagick-full` are `:versioned_formula`, so Homebrew installs them **keg-only** and never links them into `/opt/homebrew/bin`. Without the force-link, `ffmpeg`, `ffprobe` and `magick` are absent from `$PATH` and yazi's video and image previews fail silently. `--overwrite` replaces any conflicting symlinks left by a plain `ffmpeg` or `imagemagick` install.
+The link command is required. `ffmpeg-full` and `imagemagick-full` are `:versioned_formula`, so Homebrew installs them **keg-only** and never links them into `/opt/homebrew/bin`. Without the force-link, `ffmpeg`, `ffprobe` and `magick` are absent from `$PATH` and yazi's video and image previews fail silently. `--overwrite` replaces any conflicting symlinks left by a plain `ffmpeg` or `imagemagick` install.
 
 ### Nerd Fonts
 
 The prompt, tmux status line and eza icons all use Nerd Font glyphs:
 
+<!-- catalog:font-casks:start -->
 ```sh
-brew install --cask font-maple-mono-nf-cn font-proggy-clean-tt-nerd-font \
-  font-fantasque-sans-mono-nerd-font font-symbols-only-nerd-font
+brew install --cask font-maple-mono-nf-cn font-proggy-clean-tt-nerd-font font-fantasque-sans-mono-nerd-font font-symbols-only-nerd-font
 ```
+<!-- catalog:font-casks:end -->
 
 `wezterm.lua` requests them in that order as a fallback chain: `Maple Mono NF CN` → `ProggyClean Nerd Font` → `FantasqueSansM Nerd Font`.
 
@@ -110,16 +120,27 @@ cd ~/dotfiles
 
 `~/.gitconfig` is left alone on purpose. Git reads it *after* `~/.config/git/config`, which makes the two a layer pair: this repo's `git/` package carries the settings that are the same everywhere, and `~/.gitconfig` stays untracked for whatever belongs to that one machine — `user.name` / `user.email` above all, plus any work-only `includeIf`, signing key or credential helper. Nothing machine-specific goes in the repo, and nothing in the repo needs editing per machine.
 
+### Machine-local state
+
+<!-- catalog:machine-local-state:start -->
+- **`~/.gitconfig`** — Git identity, credential helpers, signing keys, and machine-specific includes remain untracked.
+- **`~/.config/zsh/secrets.zsh`** — API keys and tokens remain gitignored machine-local state.
+- **`~/.zshenv`** — A real file is preserved rather than overwritten because it can contain machine-specific settings.
+<!-- catalog:machine-local-state:end -->
+
 Then:
 
-1. `exec zsh` — the zsh plugins clone themselves on first run.
+<!-- catalog:followups:start -->
+1. Start a new shell (`exec zsh`). The zsh plugins clone themselves on first run.
 2. Inside tmux, press `prefix + I` (`C-s` then `Shift-i`) to install the tmux plugins.
-3. Set your terminal font to one of the Nerd Fonts installed above.
+3. Set your terminal font to `Maple Mono NF CN` (or another installed Nerd Font).
+<!-- catalog:followups:end -->
 
 ### Manual equivalent
 
 Everything `install.sh` does, by hand:
 
+<!-- catalog:manual-equivalent:start -->
 ```sh
 cd ~/dotfiles
 
@@ -147,6 +168,7 @@ git clone --depth=1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/t
 # 5. Fetch the yazi flavors pinned in yazi/.config/yazi/package.toml.
 ya pkg install
 ```
+<!-- catalog:manual-equivalent:end -->
 
 **Why step 2 exists.** zsh only ever auto-reads `~/.zshenv`, and that file is precisely what sets `ZDOTDIR` to `~/.config/zsh`. Without the symlink, nothing under `~/.config/zsh` is ever loaded. Stow cannot create it, because the link crosses out of the package tree.
 
@@ -305,6 +327,8 @@ zplugin-update                                  # zsh plugins
 ya pkg upgrade                                  # yazi flavors (updates package.toml)
 # inside tmux: prefix + U                        # tmux plugins
 cd ~/dotfiles && stow -R -t "$HOME" zsh tmux    # re-apply after adding new files to a package
+scripts/render-readme.sh                         # regenerate catalog-derived README sections
+scripts/render-readme.sh --check                 # verify README has no catalog drift
 ```
 
 Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`, `yazi/.config/yazi/flavors/`) are gitignored — they are manager-owned clones, not source. A fresh clone of this repo will not contain them; the zsh ones reappear on the next shell start and TPM and the yazi flavors are re-fetched by `install.sh`.

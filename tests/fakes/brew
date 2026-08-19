@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+state="${FAKE_BREW_STATE:?FAKE_BREW_STATE is required}"
+log="${FAKE_LOG:?FAKE_LOG is required}"
+
+case "${1:-}" in
+  list)
+    kind="${2#--}"
+    awk -F '\t' -v kind="$kind" '$1 == kind { print $2 }' "$state"
+    ;;
+  install)
+    shift
+    kind="formula"
+    if [[ "${1:-}" == "--cask" ]]; then
+      kind="cask"
+      shift
+    fi
+    printf 'brew install %s %s\n' "$kind" "$*" >> "$log"
+    for package in "$@"; do
+      grep -Fqx "$kind	$package" "$state" || printf '%s\t%s\n' "$kind" "$package" >> "$state"
+    done
+    ;;
+  --prefix)
+    printf '%s\n' "${FAKE_BREW_PREFIX:?FAKE_BREW_PREFIX is required}"
+    ;;
+  link)
+    package="$2"
+    printf 'brew link %s\n' "$package" >> "$log"
+    mkdir -p "$FAKE_BREW_PREFIX/var/homebrew/linked"
+    ln -sfn "$FAKE_BREW_PREFIX/Cellar/$package" "$FAKE_BREW_PREFIX/var/homebrew/linked/$package"
+    ;;
+  *)
+    printf 'unexpected brew invocation: %s\n' "$*" >&2
+    exit 1
+    ;;
+esac

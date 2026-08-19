@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" != "clone" ]]; then
+  printf 'unexpected git invocation: %s\n' "$*" >&2
+  exit 1
+fi
+
+destination=""
+for argument in "$@"; do
+  destination="$argument"
+done
+mkdir -p "$destination"
+printf 'git clone %s\n' "$destination" >> "${FAKE_LOG:?FAKE_LOG is required}"
