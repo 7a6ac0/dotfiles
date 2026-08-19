@@ -20,3 +20,6 @@
 # direnv
 .direnv/
 .envrc.local
+
+# Claude settings
+**/.claude/settings.local.json
