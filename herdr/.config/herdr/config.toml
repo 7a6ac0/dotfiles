@@ -1,0 +1,95 @@
+# herdr — agent multiplexer. Reloaded in a running server with
+# `herdr server reload-config` (or `prefix + Shift-r`).
+#
+# Only deliberate deviations from the shipped defaults are set here; run
+# `herdr --default-config` for the full annotated reference. An invalid value
+# falls back to its default and reports a startup warning rather than failing.
+
+[theme]
+# Mocha is the `catppuccin` built-in; `catppuccin-latte` is its light twin.
+# Pinned rather than left implicit because every package in this repo is Mocha.
+name = "catppuccin"
+auto_switch = false
+
+[keys]
+prefix = "ctrl+s"
+split_vertical = 'prefix+\'
+focus_pane_left = "ctrl+h"
+focus_pane_down = "ctrl+j"
+focus_pane_up = "ctrl+k"
+focus_pane_right = "ctrl+l"
+
+# Everything else stays on herdr's defaults, which already read as tmux:
+#   prefix c / p / n     new, previous, next tab
+#   prefix 1..9          switch to tab
+#   prefix -             split horizontally
+#   prefix r             resize mode (then hjkl, unlike tmux's direct resize)
+#   prefix z             zoom pane
+#   prefix x             close pane
+#   prefix b             toggle sidebar
+#   prefix Shift-r       reload this file
+
+# The three floating popups tmux.conf binds, on the same keys.
+[[keys.command]]
+key = "prefix+ctrl+g"
+type = "popup"
+command = "lazygit"
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+ctrl+y"
+type = "popup"
+command = "yazi"
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+ctrl+t"
+type = "popup"
+command = "zsh"
+width = "80%"
+height = "80%"
+
+[terminal]
+# default_shell is left unset so panes inherit $SHELL — the Homebrew zsh that
+# .zprofile puts on PATH, not /bin/zsh.
+new_cwd = "follow"
+
+[ui]
+accent = "#89b4fa"
+
+# tmux's `c` opens a window immediately; prompting for a name every time is a
+# step it never asked for.
+prompt_new_tab_name = false
+
+# Toasts announce an agent changing state, but they are gone the moment you
+# look away. This is the same information as a standing count, so a glance
+# answers "is anything waiting on me" without switching workspaces. Blocked and
+# done are the ones worth interrupting for; idle is left silent so an empty
+# entry means nothing needs attention.
+#
+# zoom stays last: it appears and disappears with the pane, and keeping it at
+# the edge means the agent counts do not shift sideways when you zoom.
+tab_bar_right = [
+  { type = "command", command = "$HOME/.config/herdr/bin/agent-status.sh", interval_seconds = 5, timeout_seconds = 3 },
+  { type = "zoom" },
+]
+tab_bar_right_separator = " │ "
+
+[ui.toast]
+# Knowing an agent finished or is blocked while you are in another workspace is
+# the reason to run herdr at all, so the default "off" is turned up.
+delivery = "herdr"
+
+[experimental]
+# A CJK IME swallows the prefix chord, which makes `ctrl+s` unreliable mid-
+# sentence. This flips the input source to ASCII for the length of prefix mode
+# and puts it back afterwards.
+switch_ascii_input_source_in_prefix = true
+
+# Claude Code paints its own cursor and hides the terminal's, which drops the
+# IME candidate window. Scoped to claude so nvim's normal mode does not gain a
+# second visible cursor.
+reveal_hidden_cursor_for_cjk_ime = true
+cjk_ime_agents = ["claude"]

@@ -60,6 +60,7 @@ run_install "$CURRENT_ROOT/first-output"
 
 assert_symlink "$CURRENT_HOME/.config/nvim"
 assert_symlink "$CURRENT_HOME/.config/git"
+assert_symlink "$CURRENT_HOME/.config/herdr"
 assert_symlink "$CURRENT_HOME/.zshenv"
 assert_directory "$CURRENT_HOME/.cache/zsh"
 assert_directory "$CURRENT_HOME/.local/state/zsh"
@@ -99,6 +100,7 @@ assert_lacks "$CURRENT_LOG" 'ya pkg install'
 assert_contains "$CURRENT_LOG" 'stow'
 assert_contains "$CURRENT_LOG" 'git-delta'
 assert_lacks "$CURRENT_LOG" 'ripgrep'
+assert_lacks "$CURRENT_LOG" 'herdr'
 assert_lacks "$CURRENT_LOG" 'neovim'
 assert_lacks "$CURRENT_LOG" 'cask'
 assert_lacks "$CURRENT_LOG" 'brew link'

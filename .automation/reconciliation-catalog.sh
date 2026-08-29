@@ -10,6 +10,7 @@ readonly CATALOG_PACKAGES=(
   atuin
   eza
   git
+  herdr
   lazygit
   nvim
   starship
@@ -66,6 +67,7 @@ readonly CATALOG_AUTOMATED_RECONCILIATION_PACKAGES=(
 readonly CATALOG_FOLLOWUP_PACKAGES=(
   zsh
   tmux
+  herdr
 )
 
 catalog_package_description() {
@@ -73,6 +75,7 @@ catalog_package_description() {
     atuin) printf '%s\n' 'shell history config, Catppuccin Mocha themes' ;;
     eza) printf '%s\n' '`ls` replacement colour theme' ;;
     git) printf '%s\n' '`config` (diff/merge defaults, delta pager — no identity), global `ignore`' ;;
+    herdr) printf '%s\n' 'agent multiplexer `config.toml`, `bin/agent-status.sh` tab-bar counts — Catppuccin Mocha, tmux-shaped `Ctrl-s` prefix' ;;
     lazygit) printf '%s\n' 'git UI theme (Catppuccin Mocha), delta diff renderer' ;;
     nvim) printf '%s\n' 'LazyVim-based editor config, `lazy-lock.json`, lazy.nvim-managed plugins' ;;
     starship) printf '%s\n' 'prompt theme, custom git-remote and worktree modules' ;;
@@ -99,6 +102,7 @@ catalog_package_formulae() {
     atuin) printf '%s\n' atuin ;;
     eza) printf '%s\n' eza ;;
     git) printf '%s\n' git-delta ;;
+    herdr) printf '%s\n' herdr ;;
     lazygit) printf '%s\n' lazygit git-delta ;;
     nvim) printf '%s\n' neovim ;;
     starship) printf '%s\n' starship ;;
@@ -127,6 +131,7 @@ catalog_formula_description() {
     neovim) printf '%s\n' '`$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu' ;;
     git) printf '%s\n' 'version control; clones TPM during reconciliation' ;;
     git-delta) printf '%s\n' '`core.pager` / `interactive.diffFilter`' ;;
+    herdr) printf '%s\n' 'agent multiplexer; `herdr server` is its background service' ;;
     lazygit) printf '%s\n' 'the `lg` alias (`aliases.zsh`)' ;;
     atuin) printf '%s\n' '`Ctrl-R` history search (`.zshrc`)' ;;
     *) return 1 ;;
@@ -161,6 +166,7 @@ catalog_package_followups() {
   case "$1" in
     zsh) printf '%s\n' 'Start a new shell (`exec zsh`). The zsh plugins clone themselves on first run.' ;;
     tmux) printf '%s\n' 'Inside tmux, press `prefix + I` (`C-s` then `Shift-i`) to install the tmux plugins.' ;;
+    herdr) printf '%s\n' 'Start the herdr server (`brew services start herdr`), then run `herdr` to attach.' ;;
   esac
 }
 

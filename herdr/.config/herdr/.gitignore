@@ -1,0 +1,6 @@
+# Runtime state the server rewrites while it runs; session.json also bakes in
+# absolute paths. config.toml and bin/ are the source.
+*.log
+*.sock
+session.json
+.plugins.lock

@@ -10,6 +10,7 @@ Each configuration directory listed below is a Stow *package* whose contents mir
 | `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
 | `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
 | `git/` | `~/.config/git/` | `config` (diff/merge defaults, delta pager — no identity), global `ignore` |
+| `herdr/` | `~/.config/herdr/` | agent multiplexer `config.toml`, `bin/agent-status.sh` tab-bar counts — Catppuccin Mocha, tmux-shaped `Ctrl-s` prefix |
 | `lazygit/` | `~/.config/lazygit/` | git UI theme (Catppuccin Mocha), delta diff renderer |
 | `nvim/` | `~/.config/nvim/` | LazyVim-based editor config, `lazy-lock.json`, lazy.nvim-managed plugins |
 | `starship/` | `~/.config/starship/` | prompt theme, custom git-remote and worktree modules |
@@ -52,7 +53,7 @@ A full run of `install.sh` installs all of the following. The **Selected with** 
 
 <!-- catalog:required-formulae:start -->
 ```sh
-brew install stow git atuin eza git-delta lazygit neovim starship tmux fzf fd sesh yazi zsh bat ripgrep zoxide
+brew install stow git atuin eza git-delta herdr lazygit neovim starship tmux fzf fd sesh yazi zsh bat ripgrep zoxide
 ```
 
 | Package | Why it is needed | Selected with |
@@ -62,6 +63,7 @@ brew install stow git atuin eza git-delta lazygit neovim starship tmux fzf fd se
 | `atuin` | `Ctrl-R` history search (`.zshrc`) | `atuin` |
 | `eza` | `ls` / `ll` / `la` / `tree` aliases | `eza`, `zsh` |
 | `git-delta` | `core.pager` / `interactive.diffFilter` | `git`, `lazygit` |
+| `herdr` | agent multiplexer; `herdr server` is its background service | `herdr` |
 | `lazygit` | the `lg` alias (`aliases.zsh`) | `lazygit` |
 | `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu | `nvim` |
 | `starship` | the prompt (`prompt.zsh`) | `starship` |
@@ -180,7 +182,8 @@ Then, for a full run — a partial run prints only the steps its selection earne
 <!-- catalog:followups:start -->
 1. Start a new shell (`exec zsh`). The zsh plugins clone themselves on first run.
 2. Inside tmux, press `prefix + I` (`C-s` then `Shift-i`) to install the tmux plugins.
-3. Set your terminal font to `Maple Mono NF CN` (or another installed Nerd Font).
+3. Start the herdr server (`brew services start herdr`), then run `herdr` to attach.
+4. Set your terminal font to `Maple Mono NF CN` (or another installed Nerd Font).
 <!-- catalog:followups:end -->
 
 ### Manual equivalent
@@ -193,7 +196,7 @@ cd ~/dotfiles
 
 # 0. Move any pre-existing config out of the way — stow will not overwrite it.
 mkdir -p ~/.dotfiles-backup/manual
-for pkg in atuin eza git lazygit nvim starship tmux wezterm yazi zsh; do
+for pkg in atuin eza git herdr lazygit nvim starship tmux wezterm yazi zsh; do
   # -e is false for a broken symlink, hence the second test.
   if [ -e ~/.config/"$pkg" ] || [ -L ~/.config/"$pkg" ]; then
     mv ~/.config/"$pkg" ~/.dotfiles-backup/manual/"$pkg"
@@ -201,7 +204,7 @@ for pkg in atuin eza git lazygit nvim starship tmux wezterm yazi zsh; do
 done
 
 # 1. Symlink the packages into $HOME.
-stow --restow --target="$HOME" atuin eza git lazygit nvim starship tmux wezterm yazi zsh
+stow --restow --target="$HOME" atuin eza git herdr lazygit nvim starship tmux wezterm yazi zsh
 
 # 2. Bootstrap ~/.zshenv. Stow will NOT do this — see below.
 ln -sfn "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
@@ -227,6 +230,7 @@ After a successful install, `~/.config` holds folded directory symlinks pointing
 ~/.config/atuin    -> ../dotfiles/atuin/.config/atuin
 ~/.config/eza      -> ../dotfiles/eza/.config/eza
 ~/.config/git      -> ../dotfiles/git/.config/git
+~/.config/herdr    -> ../dotfiles/herdr/.config/herdr
 ~/.config/lazygit  -> ../dotfiles/lazygit/.config/lazygit
 ~/.config/nvim     -> ../dotfiles/nvim/.config/nvim
 ~/.config/starship -> ../dotfiles/starship/.config/starship
@@ -341,6 +345,34 @@ zsh runs in **vi mode** (`set -o vi`).
 
 Sessions are persisted by tmux-resurrect and auto-saved every 15 minutes by tmux-continuum.
 
+### herdr — prefix is `Ctrl-s`
+
+An alternative to tmux rather than a companion: same prefix, and the two are
+never run nested. Only the deviations from herdr's defaults are listed; the rest
+of `config.toml` documents what was left alone.
+
+| Key | Action |
+| --- | --- |
+| `Ctrl-g` | lazygit in a floating popup |
+| `Ctrl-y` | yazi in a floating popup |
+| `Ctrl-t` | floating zsh shell |
+| `-` / `\` | split horizontally / vertically |
+| `r` | resize mode (then `hjkl`) |
+| `z` / `x` | zoom / close pane |
+| `b` | toggle the agent sidebar |
+| `Shift-r` | reload `config.toml` |
+
+Pane focus is bound without the prefix: `Ctrl-h` `Ctrl-j` `Ctrl-k` `Ctrl-l`, the
+same motion vim-tmux-navigator provides under tmux. herdr claims those chords
+before the pane does, so `Ctrl-l` no longer clears the shell and nvim's window
+motions inside a herdr pane have to go through `Ctrl-w` `hjkl`.
+
+`herdr config check` validates the file; `herdr server reload-config` applies it
+to a running server without a restart. Agent state changes in background
+workspaces raise an in-app toast (`ui.toast.delivery`), and prefix mode
+temporarily switches the input source to ASCII so `Ctrl-s` still registers with
+a CJK IME active.
+
 ### WezTerm — leader is `Ctrl-a`
 
 | Key | Action |
@@ -386,7 +418,7 @@ Plugin directories (`zsh/.config/zsh/plugins/`, `tmux/.config/tmux/plugins/`, `y
 
 ```sh
 cd ~/dotfiles
-stow -D -t "$HOME" atuin eza git lazygit nvim starship tmux wezterm yazi zsh
+stow -D -t "$HOME" atuin eza git herdr lazygit nvim starship tmux wezterm yazi zsh
 rm ~/.zshenv
 ```
 
