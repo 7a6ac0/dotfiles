@@ -122,7 +122,7 @@ These are all sourced defensively, so their absence is not fatal:
 ## Installation
 
 ```sh
-git clone <this-repo> ~/dotfiles
+git clone https://github.com/7a6ac0/dotfiles
 cd ~/dotfiles
 ./install.sh
 ```
