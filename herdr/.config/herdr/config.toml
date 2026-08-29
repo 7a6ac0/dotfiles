@@ -18,7 +18,9 @@ focus_pane_left = "ctrl+h"
 focus_pane_down = "ctrl+j"
 focus_pane_up = "ctrl+k"
 focus_pane_right = "ctrl+l"
-rename_tab = "prefix+comma"
+rename_tab = "prefix+,"
+previous_agent = "ctrl+,"
+next_agent = "ctrl+."
 
 # Everything else stays on herdr's defaults, which already read as tmux:
 #   prefix c / p / n     new, previous, next tab
@@ -64,6 +66,9 @@ accent = "#89b4fa"
 # step it never asked for.
 prompt_new_tab_name = false
 
+# Show detected/reported agent labels in split pane borders when no manual pane name is set.
+show_agent_labels_on_pane_borders = true
+
 # Toasts announce an agent changing state, but they are gone the moment you
 # look away. This is the same information as a standing count, so a glance
 # answers "is anything waiting on me" without switching workspaces. Blocked and
@@ -93,4 +98,4 @@ switch_ascii_input_source_in_prefix = true
 # IME candidate window. Scoped to claude so nvim's normal mode does not gain a
 # second visible cursor.
 reveal_hidden_cursor_for_cjk_ime = true
-cjk_ime_agents = ["claude"]
+cjk_ime_agents = ["claude","codex"]
