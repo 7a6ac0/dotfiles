@@ -30,6 +30,16 @@ The single declared inventory of managed packages and the facts needed to
 reconcile them on a target machine.
 _Avoid_: package lists, installer constants
 
+**Selectable item**:
+One unit of the reconciliation catalog a user can accept or decline: a managed
+package, or an extra such as the Yazi preview backends or the Nerd Fonts.
+_Avoid_: option, module, component
+
+**Selection checklist**:
+The interactive list the installer opens so the user can decline selectable
+items before any change is made. Every item starts accepted.
+_Avoid_: menu, wizard, prompt
+
 **User follow-up**:
 A required action that remains after automated reconciliation because it needs
 an interactive terminal, an application, or a user preference.

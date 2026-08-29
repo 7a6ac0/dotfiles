@@ -22,16 +22,40 @@ render_packages() {
   done
 }
 
+render_extras() {
+  local extra
+  printf '| Item | Contents |\n| --- | --- |\n'
+  for extra in "${CATALOG_EXTRAS[@]}"; do
+    printf '| `%s` | %s |\n' "$extra" "$(catalog_extra_description "$extra")"
+  done
+}
+
+# The selectable items that pull a formula in, as a comma-separated cell.
+formula_sources() {
+  local formula="$1" pkg sources=""
+
+  if printf '%s\n' "${CATALOG_CORE_FORMULAE[@]}" | grep -Fqx "$formula"; then
+    printf 'always'
+    return
+  fi
+  for pkg in "${CATALOG_PACKAGES[@]}"; do
+    catalog_package_formulae "$pkg" | grep -Fqx "$formula" || continue
+    sources="${sources:+$sources, }\`$pkg\`"
+  done
+  printf '%s' "$sources"
+}
+
 render_required_formulae() {
   local formula
   printf '```sh\nbrew install'
-  for formula in "${CATALOG_REQUIRED_FORMULAE[@]}"; do
+  while IFS= read -r formula; do
     printf ' %s' "$formula"
-  done
-  printf '\n```\n\n| Package | Why it is needed |\n| --- | --- |\n'
-  for formula in "${CATALOG_REQUIRED_FORMULAE[@]}"; do
-    printf '| `%s` | %s |\n' "$formula" "$(catalog_formula_description "$formula")"
-  done
+  done < <(catalog_all_required_formulae)
+  printf '\n```\n\n| Package | Why it is needed | Selected with |\n| --- | --- | --- |\n'
+  while IFS= read -r formula; do
+    printf '| `%s` | %s | %s |\n' \
+      "$formula" "$(catalog_formula_description "$formula")" "$(formula_sources "$formula")"
+  done < <(catalog_all_required_formulae)
 }
 
 render_yazi_preview_formulae() {
@@ -108,6 +132,7 @@ render_machine_local_state() {
 render_block() {
   case "$1" in
     packages) render_packages ;;
+    extras) render_extras ;;
     required-formulae) render_required_formulae ;;
     yazi-preview-formulae) render_yazi_preview_formulae ;;
     font-casks) render_font_casks ;;
@@ -145,7 +170,7 @@ replace_block() {
 
 generate() {
   local source="$README" destination="$1" block intermediate
-  for block in packages required-formulae yazi-preview-formulae font-casks followups manual-equivalent machine-local-state; do
+  for block in packages extras required-formulae yazi-preview-formulae font-casks followups manual-equivalent machine-local-state; do
     intermediate="$(mktemp "${TMPDIR:-/tmp}/dotfiles-readme.XXXXXX")"
     replace_block "$source" "$intermediate" "$block"
     if [[ "$source" != "$README" ]]; then

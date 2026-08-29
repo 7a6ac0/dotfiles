@@ -19,7 +19,18 @@ Each configuration directory listed below is a Stow *package* whose contents mir
 | `zsh/` | `~/.config/zsh/` | shell config split into `.zshenv`, `.zprofile`, `.zshrc`, aliases, fzf, plugins, and prompt |
 <!-- catalog:packages:end -->
 
-`.automation/` contains repository-maintenance tools and is never passed to Stow.
+Two further items are installable but are not Stow packages:
+
+<!-- catalog:extras:start -->
+| Item | Contents |
+| --- | --- |
+| `yazi-previews` | video, image, PDF, SVG and archive previews inside yazi |
+| `fonts` | the Nerd Font casks the terminal and editor configs assume |
+<!-- catalog:extras:end -->
+
+Packages and extras together are the *items* the installer's checklist offers.
+
+`.automation/` holds the reconciliation catalog, the checklist, and the repository-maintenance tools. It is never passed to Stow.
 
 ---
 
@@ -35,39 +46,39 @@ WezTerm is not required; the zsh and tmux configs work in any terminal that supp
 
 ## Package installation
 
-`install.sh` installs all of the following. The lists are reproduced here so you can install selectively or audit what each dependency is for.
+A full run of `install.sh` installs all of the following. The **Selected with** column names the items that pull each formula in, so a partial run installs correspondingly less. The lists are reproduced here so you can install by hand or audit what each dependency is for.
 
 ### Required
 
 <!-- catalog:required-formulae:start -->
 ```sh
-brew install stow zsh tmux starship eza bat fd fzf ripgrep zoxide sesh yazi neovim git git-delta lazygit atuin
+brew install stow git atuin eza git-delta lazygit neovim starship tmux fzf fd sesh yazi zsh bat ripgrep zoxide
 ```
 
-| Package | Why it is needed |
-| --- | --- |
-| `stow` | installs this repo into `$HOME` |
-| `zsh` | the shell itself |
-| `tmux` | terminal multiplexer |
-| `starship` | the prompt (`prompt.zsh`) |
-| `eza` | `ls` / `ll` / `la` / `tree` aliases |
-| `bat` | `cat` alias, `$MANPAGER`, fzf preview |
-| `fd` | `$FZF_DEFAULT_COMMAND`, the tmux sessionizer |
-| `fzf` | `Ctrl-T` / `Alt-C`, sesh pickers |
-| `ripgrep` | `grep` alias |
-| `zoxide` | smart `cd` (`.zshrc`) |
-| `sesh` | session picker — `Esc-s` in zsh, `prefix K` in tmux |
-| `yazi` | the `y` function and `prefix C-y` popup; `ya pkg` installs its flavors |
-| `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu |
-| `git` | version control |
-| `git-delta` | `core.pager` / `interactive.diffFilter` |
-| `lazygit` | the `lg` alias (`aliases.zsh`) |
-| `atuin` | `Ctrl-R` history search (`.zshrc`) |
+| Package | Why it is needed | Selected with |
+| --- | --- | --- |
+| `stow` | installs this repo into `$HOME` | always |
+| `git` | version control; clones TPM during reconciliation | always |
+| `atuin` | `Ctrl-R` history search (`.zshrc`) | `atuin` |
+| `eza` | `ls` / `ll` / `la` / `tree` aliases | `eza`, `zsh` |
+| `git-delta` | `core.pager` / `interactive.diffFilter` | `git`, `lazygit` |
+| `lazygit` | the `lg` alias (`aliases.zsh`) | `lazygit` |
+| `neovim` | `$EDITOR` / `$VISUAL`, `vim` alias, tmux config-edit menu | `nvim` |
+| `starship` | the prompt (`prompt.zsh`) | `starship` |
+| `tmux` | terminal multiplexer | `tmux` |
+| `fzf` | `Ctrl-T` / `Alt-C`, sesh pickers | `tmux`, `zsh` |
+| `fd` | `$FZF_DEFAULT_COMMAND`, the tmux sessionizer | `tmux`, `zsh` |
+| `sesh` | session picker — `Esc-s` in zsh, `prefix K` in tmux | `tmux`, `zsh` |
+| `yazi` | the `y` function and `prefix C-y` popup; `ya pkg` installs its flavors | `yazi` |
+| `zsh` | the shell itself | `zsh` |
+| `bat` | `cat` alias, `$MANPAGER`, fzf preview | `zsh` |
+| `ripgrep` | `grep` alias | `zsh` |
+| `zoxide` | smart `cd` (`.zshrc`) | `zsh` |
 <!-- catalog:required-formulae:end -->
 
 ### Yazi preview backends
 
-Full installation includes preview support for media, PDFs, SVGs and archives inside yazi:
+The `yazi-previews` item adds preview support for media, PDFs, SVGs and archives inside yazi:
 
 <!-- catalog:yazi-preview-formulae:start -->
 ```sh
@@ -80,7 +91,7 @@ The link command is required. `ffmpeg-full` and `imagemagick-full` are `:version
 
 ### Nerd Fonts
 
-The prompt, tmux status line and eza icons all use Nerd Font glyphs:
+The `fonts` item installs the Nerd Font glyphs the prompt, tmux status line and eza icons all use:
 
 <!-- catalog:font-casks:start -->
 ```sh
@@ -116,7 +127,41 @@ cd ~/dotfiles
 ./install.sh
 ```
 
-`install.sh` is idempotent — re-running it on a configured machine is a no-op. Set `DOTFILES_SKIP_BREW=1` to re-stow without touching Homebrew.
+`install.sh` opens a checklist of every item with all of them ticked. Untick what you do not want and press Enter: only the ticked items are brew-installed, stowed, and reconciled — an unticked package's `~/.config/<package>` is never touched, and the formulae only it depends on are never installed.
+
+```text
+  Reconcile this machine — pick what to install
+  ↑/↓ move · space toggle · a all · n none · enter confirm · q cancel
+
+  Managed packages
+  ❯ [x] atuin     shell history config, Catppuccin Mocha themes
+    [ ] eza       ls replacement colour theme
+    [x] git       config (diff/merge defaults, delta pager — no identity), global ignore
+    …
+
+  Extras
+    [x] yazi-previews  video, image, PDF, SVG and archive previews inside yazi
+    [x] fonts          the Nerd Font casks the terminal and editor configs assume
+
+  11 of 12 selected
+```
+
+The checklist is drawn with nothing but bash and ANSI escapes, on the bash 3.2 macOS ships. It has to be: `install.sh` is the thing that puts `stow`, `fzf` and friends on the machine, so the picker it opens first cannot depend on any of them.
+
+### Non-interactive runs
+
+| Invocation | Effect |
+| --- | --- |
+| `./install.sh --all` | Reconcile every item, no checklist. |
+| `./install.sh --select zsh,tmux` | Reconcile only those items. Commas or spaces both separate. |
+| `./install.sh --list` | Print the selectable item names and exit. |
+| `./install.sh --help` | Usage. |
+| `DOTFILES_SELECT=…`, `DOTFILES_ALL=1` | Environment equivalents of `--select` and `--all`. |
+| `DOTFILES_SKIP_BREW=1 ./install.sh` | Re-stow without touching Homebrew. |
+
+Without a terminal to draw on — output redirected, or a `curl … | bash` with no tty — the checklist is skipped and every item is reconciled, so scripted runs behave as they always did.
+
+`install.sh` is idempotent — re-running it on a configured machine is a no-op.
 
 **Your existing config is not destroyed.** Before stowing, `install.sh` checks every `~/.config/<package>` path it is about to claim. Anything real already sitting there — a hand-written `~/.config/nvim`, a symlink pointing somewhere else, even a broken one — is moved to `~/.dotfiles-backup/<timestamp>/<package>/` and the path is reported on stdout. Links this repo already owns are recognised and left alone, so a re-run never manufactures a backup of itself.
 
@@ -130,7 +175,7 @@ cd ~/dotfiles
 - **`~/.zshenv`** — A real file is preserved rather than overwritten because it can contain machine-specific settings.
 <!-- catalog:machine-local-state:end -->
 
-Then:
+Then, for a full run — a partial run prints only the steps its selection earned:
 
 <!-- catalog:followups:start -->
 1. Start a new shell (`exec zsh`). The zsh plugins clone themselves on first run.
@@ -140,7 +185,7 @@ Then:
 
 ### Manual equivalent
 
-Everything `install.sh` does, by hand:
+Everything a full `install.sh` run does, by hand:
 
 <!-- catalog:manual-equivalent:start -->
 ```sh
