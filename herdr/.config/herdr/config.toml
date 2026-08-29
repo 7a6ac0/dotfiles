@@ -18,6 +18,7 @@ focus_pane_left = "ctrl+h"
 focus_pane_down = "ctrl+j"
 focus_pane_up = "ctrl+k"
 focus_pane_right = "ctrl+l"
+rename_tab = "prefix+comma"
 
 # Everything else stays on herdr's defaults, which already read as tmux:
 #   prefix c / p / n     new, previous, next tab
