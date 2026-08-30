@@ -405,6 +405,31 @@ install_tpm() {
   git clone --depth=1 "$CATALOG_TPM_REPO" "$tpm_dir"
 }
 
+# herdr keeps its plugin registry in ~/.config/herdr/plugins.json, which it
+# rewrites itself and which is gitignored — stow places the plugin source, but
+# only herdr can register it. Linking an already-linked plugin updates it in
+# place rather than duplicating it, so this is safe on a re-run.
+#
+# Every directory holding a herdr-plugin.toml is linked, so adding a second
+# plugin needs no change here.
+link_herdr_plugins() {
+  local plugin_src="$HOME/.config/herdr/plugin-src" plugin
+
+  if ! command -v herdr >/dev/null 2>&1; then
+    warn "herdr not found — skipping plugin linking (re-run without DOTFILES_SKIP_BREW)"
+    return
+  fi
+
+  for plugin in "$plugin_src"/*/; do
+    plugin="${plugin%/}"
+    [[ -f "$plugin/herdr-plugin.toml" ]] || continue
+
+    log "Linking herdr plugin $(basename "$plugin")"
+    herdr plugin link "$plugin" >/dev/null ||
+      warn "could not link $plugin — link it by hand once the herdr server is up"
+  done
+}
+
 # yazi's flavor is a `ya pkg` clone pinned in package.toml, not tracked source.
 install_yazi_deps() {
   if ! command -v ya >/dev/null 2>&1; then
@@ -426,6 +451,7 @@ run_package_automated_reconciliation() {
         install-tpm) install_tpm ;;
         install-yazi-flavors) install_yazi_deps ;;
         link-zshenv) link_zshenv ;;
+        link-herdr-plugins) link_herdr_plugins ;;
         *) die "unknown automated reconciliation step '$step' for '$pkg'" ;;
       esac
     done < <(catalog_package_automated_steps "$pkg")

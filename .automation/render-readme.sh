@@ -118,7 +118,10 @@ render_manual_equivalent() {
   printf 'git clone --depth=1 %s ~/.config/tmux/plugins/tpm\n\n' "$CATALOG_TPM_REPO"
   printf '%s\n' \
     '# 5. Fetch the yazi flavors pinned in yazi/.config/yazi/package.toml.' \
-    'ya pkg install' \
+    'ya pkg install' '' \
+    '# 6. Register the herdr plugins. Stow places the source; only herdr can' \
+    '#    write the registry it keeps in ~/.config/herdr/plugins.json.' \
+    'herdr plugin link ~/.config/herdr/plugin-src/agent-elapsed' \
     '```'
 }
 
@@ -192,7 +195,7 @@ case "${1:-}" in
     trap 'rm -f "$generated"' EXIT
     generate "$generated"
     if ! cmp -s "$README" "$generated"; then
-      printf 'README.md is out of date; run scripts/render-readme.sh\n' >&2
+      printf 'README.md is out of date; run .automation/render-readme.sh\n' >&2
       diff -u "$README" "$generated" || true
       exit 1
     fi

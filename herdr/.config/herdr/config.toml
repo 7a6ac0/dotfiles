@@ -1,3 +1,4 @@
+onboarding = false
 # herdr — agent multiplexer. Reloaded in a running server with
 # `herdr server reload-config` (or `prefix + Shift-r`).
 #
@@ -69,19 +70,30 @@ prompt_new_tab_name = false
 # Show detected/reported agent labels in split pane borders when no manual pane name is set.
 show_agent_labels_on_pane_borders = true
 
-# Toasts announce an agent changing state, but they are gone the moment you
-# look away. This is the same information as a standing count, so a glance
-# answers "is anything waiting on me" without switching workspaces. Blocked and
-# done are the ones worth interrupting for; idle is left silent so an empty
-# entry means nothing needs attention.
-#
-# zoom stays last: it appears and disappears with the pane, and keeping it at
-# the edge means the agent counts do not shift sideways when you zoom.
-tab_bar_right = [
-  { type = "command", command = "$HOME/.config/herdr/bin/agent-status.sh", interval_seconds = 5, timeout_seconds = 3 },
-  { type = "zoom" },
+# Colours are literal Mocha hex because token fg only accepts #RGB/#RRGGBB --
+# no palette names, and no reference to [theme]. Safe here only because
+# theme.auto_switch is false and the theme is pinned to Mocha; switching to
+# catppuccin-latte would need these rewritten.
+
+[ui.sidebar.spaces]
+# branch in lavender and status in yellow are the same assignments starship
+# makes in the prompt, so the same information does not change colour depending
+# on where you read it.
+rows = [
+  ["state_icon", { token = "workspace", fg = "#cdd6f4", bold = true }],
+  [{ token = "branch", fg = "#b4befe" }, { token = "git_status", fg = "#f9e2af" }],
 ]
-tab_bar_right_separator = " │ "
+
+[ui.sidebar.agents]
+# $elapsed comes from the agent-elapsed plugin in plugin-src/, which pushes it
+# with `herdr pane report-metadata`; herdr reports agent_status but not when it
+# was entered. It is the value that separates "working" from "stuck", so it
+# sits on the dim line and is the only coloured thing on it.
+rows = [
+  ["state_icon", { token = "workspace", fg = "#89b4fa", bold = true }, { token = "tab", fg = "#7f849c" }],
+  [{ token = "terminal_title_stripped", fg = "#cdd6f4" }],
+  [{ token = "agent", fg = "#6c7086", dim = true }, { token = "$elapsed", fg = "#fab387" }],
+]
 
 [ui.toast]
 # Knowing an agent finished or is blocked while you are in another workspace is

@@ -10,7 +10,7 @@ Each configuration directory listed below is a Stow *package* whose contents mir
 | `atuin/` | `~/.config/atuin/` | shell history config, Catppuccin Mocha themes |
 | `eza/` | `~/.config/eza/` | `ls` replacement colour theme |
 | `git/` | `~/.config/git/` | `config` (diff/merge defaults, delta pager — no identity), global `ignore` |
-| `herdr/` | `~/.config/herdr/` | agent multiplexer `config.toml`, `bin/agent-status.sh` tab-bar counts — Catppuccin Mocha, tmux-shaped `Ctrl-s` prefix |
+| `herdr/` | `~/.config/herdr/` | agent multiplexer `config.toml`, `plugin-src/agent-elapsed/` sidebar plugin — Catppuccin Mocha, tmux-shaped `Ctrl-s` prefix |
 | `lazygit/` | `~/.config/lazygit/` | git UI theme (Catppuccin Mocha), delta diff renderer |
 | `nvim/` | `~/.config/nvim/` | LazyVim-based editor config, `lazy-lock.json`, lazy.nvim-managed plugins |
 | `starship/` | `~/.config/starship/` | prompt theme, custom git-remote and worktree modules |
@@ -182,7 +182,7 @@ Then, for a full run — a partial run prints only the steps its selection earne
 <!-- catalog:followups:start -->
 1. Start a new shell (`exec zsh`). The zsh plugins clone themselves on first run.
 2. Inside tmux, press `prefix + I` (`C-s` then `Shift-i`) to install the tmux plugins.
-3. Start the herdr server (`brew services start herdr`), then run `herdr` to attach.
+3. Start the herdr server (`brew services start herdr`), then run `herdr` to attach. Where it was already running, `brew services restart herdr` — plugin startup commands only launch with the server.
 4. Set your terminal font to `Maple Mono NF CN` (or another installed Nerd Font).
 <!-- catalog:followups:end -->
 
@@ -217,6 +217,10 @@ git clone --depth=1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/t
 
 # 5. Fetch the yazi flavors pinned in yazi/.config/yazi/package.toml.
 ya pkg install
+
+# 6. Register the herdr plugins. Stow places the source; only herdr can
+#    write the registry it keeps in ~/.config/herdr/plugins.json.
+herdr plugin link ~/.config/herdr/plugin-src/agent-elapsed
 ```
 <!-- catalog:manual-equivalent:end -->
 
@@ -372,6 +376,23 @@ to a running server without a restart. Agent state changes in background
 workspaces raise an in-app toast (`ui.toast.delivery`), and prefix mode
 temporarily switches the input source to ASCII so `Ctrl-s` still registers with
 a CJK IME active.
+
+The tab row is left carrying tabs and nothing else (`tab_bar_right` is empty).
+Agent state is read from the sidebar instead, which is the only surface whose
+rows take per-token `fg`, `bold`, and `dim`. Its `$elapsed` column — how long an
+agent has sat in its current state, which is what separates working from stuck —
+comes from a local plugin in `plugin-src/`, since herdr reports the state but
+not when it was entered.
+
+`install.sh` links every plugin under `plugin-src/` as part of reconciling the
+`herdr` package; re-running it is safe, because linking an already-linked plugin
+updates it in place. The link only takes effect on the next
+`brew services restart herdr` — plugin startup commands launch with the server,
+not on `reload-config`. `herdr plugin log` shows what the plugin did.
+
+`plugin-src/` sits outside `plugins/` on purpose: `plugins/` is herdr's own
+managed area, holding the registry it rewrites and a per-plugin config directory
+it seeds itself, so both it and `plugins.json` are gitignored.
 
 ### WezTerm — leader is `Ctrl-a`
 

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ "${1:-}" == "plugin" && "${2:-}" == "link" && -n "${3:-}" ]] || exit 2
+# Only the plugin name is logged: the path is a per-run temp directory, so
+# recording it would make the assertion unstable.
+printf 'herdr plugin link %s\n' "$(basename "$3")" >> "${FAKE_LOG:?FAKE_LOG is required}"
