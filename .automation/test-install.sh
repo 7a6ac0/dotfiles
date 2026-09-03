@@ -66,7 +66,6 @@ assert_directory "$CURRENT_HOME/.cache/zsh"
 assert_directory "$CURRENT_HOME/.local/state/zsh"
 assert_directory "$CURRENT_HOME/.config/tmux/plugins/tpm"
 assert_contains "$CURRENT_LOG" 'ya pkg install'
-assert_contains "$CURRENT_LOG" 'herdr plugin link agent-elapsed'
 assert_contains "$CURRENT_LOG" 'brew link ffmpeg-full'
 assert_contains "$CURRENT_LOG" 'brew link imagemagick-full'
 

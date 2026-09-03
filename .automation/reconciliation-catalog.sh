@@ -61,7 +61,6 @@ readonly CATALOG_AUTOMATED_RECONCILIATION_PACKAGES=(
   zsh
   tmux
   yazi
-  herdr
 )
 
 # Order in which package follow-ups read best, which is not catalogue order.
@@ -76,7 +75,7 @@ catalog_package_description() {
     atuin) printf '%s\n' 'shell history config, Catppuccin Mocha themes' ;;
     eza) printf '%s\n' '`ls` replacement colour theme' ;;
     git) printf '%s\n' '`config` (diff/merge defaults, delta pager — no identity), global `ignore`' ;;
-    herdr) printf '%s\n' 'agent multiplexer `config.toml`, `plugin-src/agent-elapsed/` sidebar plugin — Catppuccin Mocha, tmux-shaped `Ctrl-s` prefix' ;;
+    herdr) printf '%s\n' 'agent multiplexer `config.toml` — Catppuccin Mocha, tmux-shaped `Ctrl-s` prefix' ;;
     lazygit) printf '%s\n' 'git UI theme (Catppuccin Mocha), delta diff renderer' ;;
     nvim) printf '%s\n' 'LazyVim-based editor config, `lazy-lock.json`, lazy.nvim-managed plugins' ;;
     starship) printf '%s\n' 'prompt theme, custom git-remote and worktree modules' ;;
@@ -160,7 +159,6 @@ catalog_package_automated_steps() {
     tmux) printf '%s\n' 'install-tpm' ;;
     yazi) printf '%s\n' 'install-yazi-flavors' ;;
     zsh) printf '%s\n' 'link-zshenv' ;;
-    herdr) printf '%s\n' 'link-herdr-plugins' ;;
   esac
 }
 
@@ -168,7 +166,7 @@ catalog_package_followups() {
   case "$1" in
     zsh) printf '%s\n' 'Start a new shell (`exec zsh`). The zsh plugins clone themselves on first run.' ;;
     tmux) printf '%s\n' 'Inside tmux, press `prefix + I` (`C-s` then `Shift-i`) to install the tmux plugins.' ;;
-    herdr) printf '%s\n' 'Start the herdr server (`brew services start herdr`), then run `herdr` to attach. Where it was already running, `brew services restart herdr` — plugin startup commands only launch with the server.' ;;
+    herdr) printf '%s\n' 'Start the herdr server (`brew services start herdr`), then run `herdr` to attach.' ;;
   esac
 }
 

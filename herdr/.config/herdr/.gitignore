@@ -1,10 +1,8 @@
 # Runtime state the server rewrites while it runs; session.json also bakes in
-# absolute paths. config.toml and plugin-src/ are the source.
+# absolute paths. config.toml is the source.
 #
 # plugins/ and plugins.json are herdr's own managed plugin area -- the registry
 # it rewrites on link/unlink, plus a per-plugin config dir it seeds itself.
-# plugin-src/ is deliberately outside it so linked source and generated state
-# do not share a directory.
 *.log
 *.sock
 session.json

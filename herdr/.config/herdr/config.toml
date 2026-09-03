@@ -85,14 +85,10 @@ rows = [
 ]
 
 [ui.sidebar.agents]
-# $elapsed comes from the agent-elapsed plugin in plugin-src/, which pushes it
-# with `herdr pane report-metadata`; herdr reports agent_status but not when it
-# was entered. It is the value that separates "working" from "stuck", so it
-# sits on the dim line and is the only coloured thing on it.
 rows = [
   ["state_icon", { token = "workspace", fg = "#89b4fa", bold = true }, { token = "tab", fg = "#7f849c" }],
   [{ token = "terminal_title_stripped", fg = "#cdd6f4" }],
-  [{ token = "agent", fg = "#6c7086", dim = true }, { token = "$elapsed", fg = "#fab387" }],
+  [{ token = "agent", fg = "#6c7086", dim = true }],
 ]
 
 [ui.toast]

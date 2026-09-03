@@ -118,10 +118,7 @@ render_manual_equivalent() {
   printf 'git clone --depth=1 %s ~/.config/tmux/plugins/tpm\n\n' "$CATALOG_TPM_REPO"
   printf '%s\n' \
     '# 5. Fetch the yazi flavors pinned in yazi/.config/yazi/package.toml.' \
-    'ya pkg install' '' \
-    '# 6. Register the herdr plugins. Stow places the source; only herdr can' \
-    '#    write the registry it keeps in ~/.config/herdr/plugins.json.' \
-    'herdr plugin link ~/.config/herdr/plugin-src/agent-elapsed' \
+    'ya pkg install' \
     '```'
 }
 
