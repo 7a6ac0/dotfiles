@@ -6,6 +6,7 @@
 *.log
 *.sock
 session.json
+session-snapshots/
 .plugins.lock
 plugins/
 plugins.json
