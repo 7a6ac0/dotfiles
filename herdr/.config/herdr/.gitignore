@@ -4,7 +4,7 @@
 # plugins/ and plugins.json are herdr's own managed plugin area -- the registry
 # it rewrites on link/unlink, plus a per-plugin config dir it seeds itself.
 *.log
-*.sock
+*.sock*
 session.json
 session-snapshots/
 .plugins.lock
