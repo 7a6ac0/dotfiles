@@ -42,3 +42,7 @@ export GOPATH="$HOME/go"
 # ---------- PATH ----------
 # Personal binaries/scripts
 export PATH="$HOME/.local/bin:$PATH"
+
+# ---------- gcloud ----------
+export PATH=/opt/homebrew/share/google-cloud-sdk/bin:"$PATH"
+
