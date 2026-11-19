@@ -28,3 +28,6 @@ add-zsh-hook chpwd control_venv_activation
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget zle-keymap-select starship_zle-keymap-select
 eval "$(starship init zsh)"
+
+# 停用貼上指令時的反白效果
+zle_highlight+=(paste:none)

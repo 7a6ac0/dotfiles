@@ -17,8 +17,12 @@ if wezterm.config_builder then
 end
 
 -- Settings
-local fav_themes = { "tokyonight", "nordfox" }
-config.color_scheme = fav_themes[2]
+local fav_themes = { "tokyonight_night", "nordfox" }
+config.color_scheme = fav_themes[1]
+config.colors = {
+	selection_bg = "#585B70",
+	selection_fg = "none",
+}
 local custom_colors = {
 	red = "#D06F79", --> Tokyonight: "#F7768e"
 	cyan = "#88C0D0", --> Tokyonight: "#7DCFFF"
