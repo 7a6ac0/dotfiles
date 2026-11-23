@@ -38,6 +38,7 @@ export EZA_CONFIG_DIR="$HOME/.config/eza"
 
 # ---------- Golang ----------
 export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
 
 # ---------- PATH ----------
 # Personal binaries/scripts
